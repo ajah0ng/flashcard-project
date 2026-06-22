@@ -3,6 +3,7 @@ import express from "express"
 import cors from "cors";
 import collectionRoutes from "./routes/collectionRoutes.js"
 import deckRoutes from "./routes/deckRoutes.js"
+import cardRoutes from "./routes/cardRoutes.js"
 import { connectDB } from "./config/db.js"
 import dotenv from 'dotenv';
 dotenv.config();
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
 
 app.use("/api/collections", collectionRoutes) 
 app.use("/api/decks", deckRoutes)
+app.use("/api/cards", cardRoutes)
 
 app.listen(PORT, () => {
     console.log("Server started on port:", PORT)
