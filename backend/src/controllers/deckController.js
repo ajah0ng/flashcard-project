@@ -1,12 +1,12 @@
 import Deck from "../models/Deck.js";
 import Card from "../models/Card.js";
+import Collection from "../models/Collection.js";
 
 import mongoose from "mongoose";
 
 
 // GET a single deck by ID
 export async function getDeckById(req, res) {
-
 
     try {
         const { id } = req.params;
@@ -61,3 +61,25 @@ export async function updateDeckName(req, res) {
         });
     }
 }
+
+export const createDeck = async (req, res) => {
+  try {
+    const { collectionId, deckName, cards } = req.body;
+
+    const createdCards = await Card.insertMany(cards);
+
+    const deck = await Deck.create({
+        deckName,
+        cards: createdCards.map(card => card._id),
+    });
+
+    await Collection.findByIdAndUpdate(collectionId, {
+        $push: { decks: deck._id },
+    });
+    const populatedDeck = await Deck.findById(deck._id).populate("cards");
+    res.status(201).json(populatedDeck);
+    
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

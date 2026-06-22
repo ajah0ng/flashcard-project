@@ -1,5 +1,5 @@
 import express from "express"
-import { updateDeckName, getDeckById } from "../controllers/deckController.js"
+import { createDeck, updateDeckName, getDeckById } from "../controllers/deckController.js"
 
 const router = express.Router();
 
@@ -9,6 +9,10 @@ router.get("/:id", getDeckById)
 
 // UPDATE lecture
 router.put("/:id", updateDeckName)
+
+// Post lecture
+// CREATE deck
+router.post("/", createDeck);
 
 
 export default router;
