@@ -94,6 +94,51 @@ body {
   gap: 10px;
 }
 
+#create-deck-modal {
+  position: fixed;
+
+  background-color: #ffffff;
+  width: 360px;
+  padding: 25px;
+
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#create-card-modal {
+  position: fixed;
+  background-color: #ffffff;
+  width: 1200px;
+  padding: 25px;
+
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-content {
+  height: 400px;
+}
+
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.card-item-card {
+  padding: 10px 10px;
+  background-color: #c6c0c0;
+  border-radius: 10px;
+}
+
 /* ========== CLOSE BUTTON ========== */
 .close-btn {
   position: absolute;
@@ -112,7 +157,7 @@ body {
   color: #111827;
 }
 
-========== LABELS ========== .modal span {
+.modal span {
   font-size: 13px;
   color: #374151;
   margin-top: 8px;
