@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import AddDeckModal from "./AddDeckModal";
 import axios from "axios";
 
 const fetchCollection = async (collectionId) => {
@@ -18,10 +19,12 @@ const fetchDeck = async (deckId) => {
 };
 
 function CollectionPage() {
-    
     const { collectionId } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+
+    const [showAddDeckModal, setShowAddDeckModal] =
+        useState(false);
 
     const {
         data: collection,
@@ -33,20 +36,8 @@ function CollectionPage() {
         queryFn: () => fetchCollection(collectionId),
         enabled: !!collectionId,
         staleTime: 1000 * 60 * 5,
+        refetchOnWindowFocus: false,
     });
-
-    // Prefetch all deck data when collection loads
-    useEffect(() => {
-        if (!collection?.decks) return;
-
-        collection.decks.forEach((deck) => {
-            queryClient.prefetchQuery({
-                queryKey: ["deck", deck._id],
-                queryFn: () => fetchDeck(deck._id),
-                staleTime: 1000 * 60 * 5,
-            });
-        });
-    }, [collection, queryClient]);
 
     const handlePrefetchDeck = (deckId) => {
         queryClient.prefetchQuery({
@@ -55,6 +46,34 @@ function CollectionPage() {
             staleTime: 1000 * 60 * 5,
         });
     };
+
+
+    const addDeck = (newDeck) => {
+        queryClient.setQueryData(
+            ["collections"],
+            (old = []) => [...old, newDeck]
+        );
+    };
+
+    const handleDeckCreated = (newDeck) => {
+        queryClient.setQueryData(
+            ["collection", collectionId],
+            (oldCollection) => {
+                if (!oldCollection) return oldCollection;
+
+                return {
+                    ...oldCollection,
+                    decks: [
+                        ...oldCollection.decks,
+                        newDeck,
+                    ],
+                };
+            }
+        );
+
+        setShowAddDeckModal(false);
+    };
+
 
     if (isLoading) {
         return <h2>Loading...</h2>;
@@ -92,11 +111,30 @@ function CollectionPage() {
                             }
                         >
                             <h3>{deck.deckName}</h3>
-                            <p>{deck.cards?.length || 0} cards</p>
+                            <p>
+                                {deck.cards?.length || 0} cards
+                            </p>
                         </div>
                     ))
                 )}
+
+                <button
+                    className="create-btn"
+                    onClick={() =>
+                        setShowAddDeckModal(true)
+                    }
+                >
+                    Add Deck +
+                </button>
             </div>
+
+            <AddDeckModal
+                isOpen={showAddDeckModal}
+                onClose={() =>
+                    setShowAddDeckModal(false)
+                }
+                collectionId={collectionId}
+            />
         </div>
     );
 }
