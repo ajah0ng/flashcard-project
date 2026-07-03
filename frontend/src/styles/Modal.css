@@ -1,0 +1,153 @@
+/* CreateCollectionModal.css */
+
+/* Dark overlay */
+
+#create-collection-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 999;
+}
+
+/* Modal */
+
+#create-collection-card {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 500px;
+  max-width: 90%;
+
+  background: white;
+  border-radius: 18px;
+  padding: 32px;
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  z-index: 1000;
+}
+
+/* Title */
+
+#create-collection-card p {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 0;
+  color: #222;
+}
+
+/* Labels */
+
+#create-collection-card span {
+  font-weight: 600;
+  color: #444;
+  margin-top: 8px;
+}
+
+/* Inputs */
+
+#create-collection-card input {
+  padding: 12px 14px;
+  font-size: 1rem;
+
+  border: 1px solid #d5d5d5;
+  border-radius: 10px;
+
+  transition: 0.2s;
+}
+
+#create-collection-card input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* Close Button */
+
+.close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+
+  border: none;
+  background: transparent;
+
+  font-size: 1.6rem;
+  cursor: pointer;
+
+  color: #777;
+
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+/* Buttons */
+
+#create-collection-card button {
+  padding: 12px;
+  font-size: 1rem;
+
+  border: none;
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+/* Add deck button (+) */
+
+#create-collection-card button[type="button"] {
+  width: 50px;
+  align-self: center;
+
+  background: #f2f2f2;
+  color: #444;
+
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+#create-collection-card button[type="button"]:hover {
+  background: #dddddd;
+}
+
+/* Create Collection button */
+
+#create-collection-card button:last-child {
+  background: #4f46e5;
+  color: white;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+#create-collection-card button:last-child:hover {
+  background: #4338ca;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+  #create-collection-card {
+    width: 92%;
+    padding: 24px;
+  }
+
+  #create-collection-card p {
+    font-size: 1.5rem;
+  }
+}

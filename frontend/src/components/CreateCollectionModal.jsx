@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import '../styles/Modal.css'
 
 // When you create a deck it should put in the title of the lecture.
 // A deck is a subject and contains a list of decks.
