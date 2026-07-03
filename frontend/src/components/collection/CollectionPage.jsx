@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import AddDeckModal from "./AddDeckModal";
+import AddDeckModal from "../collection/AddDeckModal"
 import axios from "axios";
+import '../../styles/CollectionsPage.css'
 
 const fetchCollection = async (collectionId) => {
     const response = await axios.get(

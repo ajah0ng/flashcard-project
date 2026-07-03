@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+
 import { useQueryClient } from "@tanstack/react-query";
 // import Tiptap from './Tiptap'
 
@@ -46,6 +47,7 @@ function CreateCardModal({ isOpen, onClose, deckId }) {
   };
 
   return (
+    <div id="create-collection-overlay">
     <div id="create-card-modal">
       <p>New Card</p>
 
@@ -78,6 +80,7 @@ function CreateCardModal({ isOpen, onClose, deckId }) {
       />
 
       <button onClick={handleCreateCard}>Create Card</button>
+    </div>
     </div>
   );
 }
