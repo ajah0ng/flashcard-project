@@ -68,6 +68,12 @@
   margin: 0;
 }
 
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* ==========================================
    Create Button Card
    ========================================== */
@@ -95,4 +101,26 @@
   background-color: #f3f4f6;
   border-color: #4f46e5; /* Indigo accent match */
   color: #4f46e5;
+}
+
+.icon-button {
+  background: none;
+  outline: none;
+  border: none;
+}
+
+.icon-button img {
+  height: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* card does not hover is icon is hovered */
+.collection-card:has(.icon-button:hover) {
+  transform: translateY(0);
 }

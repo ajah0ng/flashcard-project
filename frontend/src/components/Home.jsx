@@ -4,6 +4,7 @@ import CreateCollectionModal from "./CreateCollectionModal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../styles/Home.css'
+import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
 
 const fetchCollections = async () => {
     const response = await axios.get(
@@ -75,7 +76,16 @@ function Home() {
                             )
                         }
                     >
-                        <h3>{collection.collectionName}</h3>
+                        <div className="card-header">
+                            <h3>{collection.collectionName}</h3>
+                            <button 
+                                onClick={() => console.log('Button clicked!')} 
+                                className="icon-button"
+                            >
+                                <img src={threeDotsIcon} />
+                            </button>
+
+                        </div>
                         <p>{collection.decks.length} decks</p>
                     </div>
                 ))}
