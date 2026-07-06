@@ -23,6 +23,8 @@ const fetchCollection = async (collectionId) => {
 function Home() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const [editingCollectionId, setEditingCollectionId] = useState(null);
+    const [editedName, setEditedName] = useState("");
 
     const [openEditDeleteMenu, setOpenEditDeleteMenu] = useState(null);
 
@@ -59,6 +61,7 @@ function Home() {
     }
 
 
+    // Should show a modal
     const handleDelete = async (collectionId) => {
         try {
             await axios.delete(
@@ -76,25 +79,25 @@ function Home() {
         }
     };
 
-    const handleEdit = async (collectionId) => {
+
+    const handleEdit = (collectionId) => {
         const currentCollection = collections.find(
             (collection) => collection._id === collectionId
         );
 
-        const newName = prompt(
-            "Enter a new collection name:",
-            currentCollection.collectionName
-        );
+        setEditingCollectionId(collectionId);
+        setEditedName(currentCollection.collectionName);
+        setOpenEditDeleteMenu(null);
+    };
 
-        if (!newName || newName.trim() === "") return;
-
-        console.log(collectionId);
+    const handleSaveEdit = async (collectionId) => {
+        if (!editedName.trim()) return;
 
         try {
             const response = await axios.put(
                 `http://localhost:5001/api/collections/${collectionId}`,
                 {
-                    collectionName: newName.trim(),
+                    collectionName: editedName.trim(),
                 }
             );
 
@@ -106,7 +109,8 @@ function Home() {
                 )
             );
 
-            setOpenEditDeleteMenu(null);
+            setEditingCollectionId(null);
+            setEditedName("");
         } catch (error) {
             console.error("Failed to edit collection:", error);
         }
@@ -126,14 +130,34 @@ function Home() {
                                 collection._id
                             )
                         }
-                        onClick={() =>
-                            navigate(
-                                `/collections/${collection._id}`
-                            )
-                        }
+                        onClick={() => {
+                            if (editingCollectionId !== collection._id) {
+                                navigate(`/collections/${collection._id}`);
+                            }
+                        }}
                     >
                         <div className="card-header">
-                            <h3>{collection.collectionName}</h3>
+                            {/* Users directly edit collection name */}
+                            {editingCollectionId === collection._id ? (
+                                <input
+                                    autoFocus
+                                    value={editedName}
+                                    onChange={(e) => setEditedName(e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            handleSaveEdit(collection._id);
+                                        }
+
+                                        if (e.key === "Escape") {
+                                            setEditingCollectionId(null);
+                                        }
+                                    }}
+                                    onBlur={() => handleSaveEdit(collection._id)}
+                                />
+                            ) : (
+                                <h3>{collection.collectionName}</h3>
+                            )}
                             <div className="menu-container">
                                 <button
                                     className="icon-button"
