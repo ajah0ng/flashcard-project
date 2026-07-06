@@ -1,87 +1,105 @@
 import { useState } from "react";
 import axios from "axios";
-
 import { useQueryClient } from "@tanstack/react-query";
-// import Tiptap from './Tiptap'
+import Tiptap from "../Tiptap";
+import '../../styles/Card.css'
 
 function CreateCardModal({ isOpen, onClose, deckId }) {
-    
-  const queryClient = useQueryClient();
+    const queryClient = useQueryClient();
 
-  const [courseOutcome, setCourseOutcome] = useState("");
-  const [keyWords, setKeyWords] = useState("");
-  const [content, setContent] = useState("");
+    const [courseOutcome, setCourseOutcome] = useState("");
+    const [keyWords, setKeyWords] = useState("");
+    const [content, setContent] = useState("");
 
-  if (!isOpen) return null;
+    if (!isOpen) return null;
 
-  const handleCreateCard = async () => {
-    try {
-      const response = await axios.post("http://localhost:5001/api/cards", {
-        deckId,
-        courseOutcome: courseOutcome.trim(),
-        keyWords: keyWords
-          .split(",")
-          .map((word) => word.trim())
-          .filter(Boolean),
-        content: content.trim(),
-      });
+    const handleCreateCard = async () => {
+        try {
+            const response = await axios.post(
+                "http://localhost:5001/api/cards",
+                {
+                    deckId,
+                    courseOutcome: courseOutcome.trim(),
+                    keyWords: keyWords
+                        .split(",")
+                        .map((word) => word.trim())
+                        .filter(Boolean),
+                    content,
+                }
+            );
 
-      const newCard = response.data;
+            const newCard = response.data;
 
-      queryClient.setQueryData(["deck", deckId], (oldDeck) => {
-        if (!oldDeck) return oldDeck;
+            queryClient.setQueryData(["deck", deckId], (oldDeck) => {
+                if (!oldDeck) return oldDeck;
 
-        return {
-          ...oldDeck,
-          cards: [...oldDeck.cards, newCard],
-        };
-      });
+                return {
+                    ...oldDeck,
+                    cards: [...oldDeck.cards, newCard],
+                };
+            });
 
-      setCourseOutcome("");
-      setKeyWords("");
-      setContent("");
-      onClose();
-    } catch (err) {
-      alert(`Error: ${err.response?.data?.message || err.message}`);
-    }
-  };
+            setCourseOutcome("");
+            setKeyWords("");
+            setContent("");
 
-  return (
-    <div id="create-collection-overlay">
-    <div className="modal-card">
-      <p>New Course Outcome Card</p>
-      <button className="close-btn" onClick={onClose}>
-        ×
-      </button>
+            onClose();
+        } catch (err) {
+            alert(err.response?.data?.message || err.message);
+        }
+    };
 
-      <span>Course Outcome Title</span>
-      <input
-        type="text"
-        placeholder="e.g. Identify some disease caused by mutations in the key Factros involved in maintaining ribsome homeostasis."
-        value={courseOutcome}
-        onChange={(e) => setCourseOutcome(e.target.value)}
-      />
+    return (
+        <div className="create-card-overlay">
+            <div className="create-card-modal">
 
-      <span>Keywords</span>
-      <input
-        type="text"
-        placeholder="keyword1, keyword2, keyword3"
-        value={keyWords}
-        onChange={(e) => setKeyWords(e.target.value)}
-      />
+                <div className="modal-header">
+                    <h2>Create Course Outcome</h2>
 
-      <span>Content</span>
-      <textarea
-        className="card-content"
-        placeholder="Enter card content"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-      />
+                    <button
+                        className="close-btn"
+                        onClick={onClose}
+                    >
+                        ✕
+                    </button>
+                </div>
 
-      <button onClick={handleCreateCard}>Create Card</button>
-    </div>
-    </div>
-  );
+                <label>Course Outcome</label>
+                <input
+                    type="text"
+                    placeholder="Course Outcome..."
+                    value={courseOutcome}
+                    onChange={(e) =>
+                        setCourseOutcome(e.target.value)
+                    }
+                />
+
+                <label>Keywords</label>
+                <input
+                    type="text"
+                    placeholder="keyword1, keyword2, keyword3"
+                    value={keyWords}
+                    onChange={(e) =>
+                        setKeyWords(e.target.value)
+                    }
+                />
+
+                <label>Content</label>
+
+                <Tiptap
+                    content={content}
+                    onChange={setContent}
+                />
+
+                <div className="modal-footer">
+                    <button onClick={handleCreateCard}>
+                        Create Card
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    );
 }
 
 export default CreateCardModal;

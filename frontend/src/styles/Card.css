@@ -1,0 +1,95 @@
+.create-card-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.65);
+  z-index: 9999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.create-card-modal {
+  width: 100%;
+
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #111827;
+}
+
+.close-btn {
+  border: none;
+  background: #f3f4f6;
+  color: #111827;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.close-btn:hover {
+  background: #e5e7eb;
+}
+
+.create-card-modal label {
+  display: block;
+  margin: 16px 0 8px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.create-card-modal input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.create-card-modal input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.modal-footer button {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-footer button:hover {
+  background: #1d4ed8;
+}
