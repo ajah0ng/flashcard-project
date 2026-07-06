@@ -69,13 +69,13 @@ function AddDeckModal({ isOpen, onClose, collectionId }) {
 
     return (
         <div className="modal-card">
-            <p>New Deck</p>
+            <p>New Lecture deck</p>
 
             <button className="close-btn" onClick={onClose}>
                 ×
             </button>
 
-            <span>Add Deck name</span>
+            <span>Add Lecture name</span>
             <input
                 type="text"
                 placeholder="Lecture 1"
@@ -85,7 +85,7 @@ function AddDeckModal({ isOpen, onClose, collectionId }) {
                 }
             />
 
-            <span>Add Cards</span>
+            <span>Add Course Outcome cards</span>
 
             {cards.map((card, index) => (
                 <input
