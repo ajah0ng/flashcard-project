@@ -68,7 +68,7 @@ function AddDeckModal({ isOpen, onClose, collectionId }) {
     };
 
     return (
-        <div id="create-deck-modal">
+        <div className="modal-card">
             <p>New Deck</p>
 
             <button className="close-btn" onClick={onClose}>

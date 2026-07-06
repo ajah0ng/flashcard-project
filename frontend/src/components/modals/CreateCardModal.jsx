@@ -48,7 +48,7 @@ function CreateCardModal({ isOpen, onClose, deckId }) {
 
   return (
     <div id="create-collection-overlay">
-    <div id="create-card-modal">
+    <div className="modal-card">
       <p>New Card</p>
 
       <button className="close-btn" onClick={onClose}>

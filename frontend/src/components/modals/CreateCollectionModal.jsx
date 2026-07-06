@@ -42,8 +42,8 @@ function CreateCollectionModal({ isOpen, onClose, onCollectionCreated }) {
   };
 
   return (
-    <div id="create-collection-card">
-      <p>New Collection</p>
+    <div className="modal-card">
+      <p>New Course Collection</p>
       <button className="close-btn" onClick={onClose}>×</button>
 
       <span>Add Course name</span>
@@ -55,7 +55,7 @@ function CreateCollectionModal({ isOpen, onClose, onCollectionCreated }) {
       />
 
       {/* decks have 5 fields to start */}
-      <span>Add Decks</span>
+      <span>Add Lecture Decks</span>
       {decks.map((deck, index) => (
         <input
           key={index}
@@ -65,9 +65,9 @@ function CreateCollectionModal({ isOpen, onClose, onCollectionCreated }) {
           onChange={(e) => updateDeck(index, e.target.value)}
         />
       ))}
-      <button type="button" onClick={addDeck}>+</button>
+      <button className="add-modal-button" type="button" onClick={addDeck}>+ Lecture <span>⌘ A</span></button>
 
-      <button onClick={handleCreateCollection}>Create Collection</button>
+      <button onClick={handleCreateCollection}>Create Course Collection</button>
     </div>
   );
 }

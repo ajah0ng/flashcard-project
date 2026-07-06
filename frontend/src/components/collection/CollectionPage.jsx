@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import AddDeckModal from "../collection/AddDeckModal"
+import CreateDeckModal from "../modals/CreateDeckModal";
 import axios from "axios";
 import '../../styles/CollectionsPage.css'
 
@@ -129,7 +129,7 @@ function CollectionPage() {
                 </button>
             </div>
 
-            <AddDeckModal
+            <CreateDeckModal
                 isOpen={showAddDeckModal}
                 onClose={() =>
                     setShowAddDeckModal(false)
