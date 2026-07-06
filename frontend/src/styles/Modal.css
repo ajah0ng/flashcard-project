@@ -1,7 +1,6 @@
 /* CreateCollectionModal.css */
 
 /* Dark overlay */
-
 #create-collection-overlay {
   position: fixed;
   inset: 0;
@@ -16,7 +15,7 @@
 
 /* Modal */
 
-#create-collection-card {
+.modal-card {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -40,7 +39,7 @@
 
 /* Title */
 
-#create-collection-card p {
+.modal-card p {
   font-size: 1.8rem;
   font-weight: bold;
   margin: 0;
@@ -48,8 +47,7 @@
 }
 
 /* Labels */
-
-#create-collection-card span {
+.modal-card span {
   font-weight: 600;
   color: #444;
   margin-top: 8px;
@@ -57,7 +55,7 @@
 
 /* Inputs */
 
-#create-collection-card input {
+.modal-card input {
   padding: 12px 14px;
   font-size: 1rem;
 
@@ -67,7 +65,7 @@
   transition: 0.2s;
 }
 
-#create-collection-card input:focus {
+.modal-card input:focus {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
@@ -97,9 +95,8 @@
 
 /* Buttons */
 
-#create-collection-card button {
+.modal-card button {
   padding: 12px;
-  font-size: 1rem;
 
   border: none;
   border-radius: 10px;
@@ -110,44 +107,43 @@
 }
 
 /* Add deck button (+) */
-
-#create-collection-card button[type="button"] {
-  width: 50px;
+.modal-card button[type="button"] {
+  width: 100px;
   align-self: center;
 
   background: #f2f2f2;
   color: #444;
 
-  font-size: 1.4rem;
+  font-size: 1rem;
   font-weight: bold;
 }
 
-#create-collection-card button[type="button"]:hover {
+.modal-card button[type="button"]:hover {
   background: #dddddd;
 }
 
 /* Create Collection button */
 
-#create-collection-card button:last-child {
+.modal-card button:last-child {
   background: #4f46e5;
   color: white;
   font-weight: 600;
   margin-top: 10px;
 }
 
-#create-collection-card button:last-child:hover {
+.modal-card button:last-child:hover {
   background: #4338ca;
 }
 
 /* Responsive */
 
 @media (max-width: 600px) {
-  #create-collection-card {
+  #.modal-card {
     width: 92%;
     padding: 24px;
   }
 
-  #create-collection-card p {
+  #.modal-card p {
     font-size: 1.5rem;
   }
 }
