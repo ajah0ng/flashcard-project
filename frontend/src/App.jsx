@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "../src/components/Home";
-import CollectionPage from "./components/collection/CollectionPage"
-import DeckPage from "./components/deck/DeckPage";
+import CollectionPage from "./components/CollectionPage"
+import DeckPage from "./components/DeckPage";
 import "./index.css";
 
 function App() {

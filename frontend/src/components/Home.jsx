@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import CreateCollectionModal from "./CreateCollectionModal";
+import CreateCollectionModal from "./modals/CreateCollectionModal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../styles/Home.css'

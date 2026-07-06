@@ -49,13 +49,12 @@ function CreateCardModal({ isOpen, onClose, deckId }) {
   return (
     <div id="create-collection-overlay">
     <div className="modal-card">
-      <p>New Card</p>
-
+      <p>New Course Outcome Card</p>
       <button className="close-btn" onClick={onClose}>
         ×
       </button>
 
-      <span>Course Outcome</span>
+      <span>Course Outcome Title</span>
       <input
         type="text"
         placeholder="e.g. Identify some disease caused by mutations in the key Factros involved in maintaining ribsome homeostasis."

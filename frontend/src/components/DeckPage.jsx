@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import CreateCardModal from "../deck/CreateCardModal"
+import CreateCardModal from "./modals/CreateCardModal";
 import axios from "axios";
+import '../styles/CollectionsPage.css';
+import '../styles/Home.css';
 
 const fetchDeck = async (deckId) => {
   const response = await axios.get(
@@ -61,12 +63,12 @@ function DeckPage() {
         <h1>{deck.deckName}</h1>
       </div>
 
-      <div className="cards-container">
+      <div className="decks-container">
         {deck.cards?.length === 0 ? (
           <p>No cards in this deck.</p>
         ) : (
           deck.cards?.map((card) => (
-            <div key={card._id} className="card-item-card">
+            <div key={card._id} className="deck-card">
               <h3>{card.courseOutcome}</h3>
             </div>
           ))
