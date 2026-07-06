@@ -104,59 +104,52 @@ export async function createCollection(req, res) {
 export async function updateCollection(req, res) {
     try {
         const { id } = req.params;
+        const { collectionName } = req.body;
 
-        const { courseName, numModules } = req.body;
-
-        const updatedDeck = await Deck.findByIdAndUpdate(
+        const updatedCollection = await Collection.findByIdAndUpdate(
             id,
-            {
-                courseName,
-                numModules,
-            },
+            { collectionName },
             { new: true }
         );
 
-        if (!updatedDeck) {
+        if (!updatedCollection) {
             return res.status(404).json({
-                message: "Deck not found"
+                message: "Collection not found",
             });
         }
 
-        res.status(200).json(updatedDeck);
-
+        res.status(200).json(updatedCollection);
     } catch (error) {
-        console.error("Error in updateDeck", error);
+        console.error("Error updating collection:", error);
 
         res.status(500).json({
-            message: "Internal server error"
+            message: "Internal server error",
         });
     }
 }
 
-// DELETE deck
+// DELETE collection
 export async function deleteCollection(req, res) {
     try {
         const { id } = req.params;
 
-        const deletedDeck = await Deck.findByIdAndDelete(id);
+        const deletedCollection = await Collection.findByIdAndDelete(id);
 
-        if (!deletedDeck) {
+        if (!deletedCollection) {
             return res.status(404).json({
-                message: "Deck not found"
+                message: "Collection not found",
             });
         }
 
         res.status(200).json({
-            message: "Deck deleted successfully"
+            message: "Collection deleted successfully",
         });
-
     } catch (error) {
-        console.error("Error in deleteDeck", error);
+        console.error("Error in deleteCollection:", error);
 
         res.status(500).json({
-            message: "Internal server error"
+            message: "Internal server error",
         });
     }
 }
-
 
