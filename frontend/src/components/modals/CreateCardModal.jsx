@@ -54,7 +54,7 @@ function CreateCardModal({ isOpen, onClose, deckId }) {
             <div className="create-card-modal">
 
                 <div className="modal-header">
-                    <h2>Create Course Outcome</h2>
+                    <h2>Create Course Outcome Card</h2>
 
                     <button
                         className="close-btn"
@@ -64,7 +64,7 @@ function CreateCardModal({ isOpen, onClose, deckId }) {
                     </button>
                 </div>
 
-                <label>Course Outcome</label>
+                <label>Course Outcome Title</label>
                 <input
                     type="text"
                     placeholder="Course Outcome..."
@@ -93,7 +93,7 @@ function CreateCardModal({ isOpen, onClose, deckId }) {
 
                 <div className="modal-footer">
                     <button onClick={handleCreateCard}>
-                        Create Card
+                        Save
                     </button>
                 </div>
 
