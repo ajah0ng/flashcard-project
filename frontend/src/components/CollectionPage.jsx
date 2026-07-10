@@ -88,36 +88,53 @@ function CollectionPage() {
     return (
         <div id="collection-page">
             <div className="section-1-page">
-                <button onClick={() => navigate(-1)}>
+                <button onClick={() => navigate("/")}>
                     Go back to My Collections
                 </button>
 
                 <h1>{collection.collectionName}</h1>
             </div>
 
+            <div id="summary-table">
+                <h5>Lecture Decks to Revise</h5>
+
+                <h5>Lecture Decks most likely to be in exam</h5>
+
+
+
+
+            </div>
+
             <div className="decks-container">
-                {collection.decks.length === 0 ? (
+                    {!collection.decks || collection.decks.length === 0 ? (
                     <p>No decks in this collection.</p>
-                ) : (
+                    ) : (
                     collection.decks.map((deck) => (
                         <div
-                            key={deck._id}
-                            className="deck-card"
-                            style={{ cursor: "pointer" }}
-                            onMouseEnter={() =>
-                                handlePrefetchDeck(deck._id)
+                        key={deck._id}
+                        className="deck-card"
+                        role="button"
+                        tabIndex={0}
+                        onMouseEnter={() => handlePrefetchDeck(deck._id)}
+                        onClick={() =>
+                            navigate(
+                            `/collections/${collectionId}/decks/${deck._id}`
+                            )
+                        }
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                            navigate(
+                                `/collections/${collectionId}/decks/${deck._id}`
+                            );
                             }
-                            onClick={() =>
-                                navigate(`/decks/${deck._id}`)
-                            }
+                        }}
                         >
-                            <h3>{deck.deckName}</h3>
-                            <p>
-                                {deck.cards?.length || 0} cards
-                            </p>
+                        <h3>{deck.deckName}</h3>
+                        <p>{deck.cards?.length || 0} cards</p>
                         </div>
                     ))
-                )}
+                    )}
+
 
                 <button
                     className="create-btn"
