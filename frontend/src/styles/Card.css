@@ -93,3 +93,273 @@
 .modal-footer button:hover {
   background: #1d4ed8;
 }
+
+.course-outline-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.course-outline-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* =========================
+   Card Page
+========================= */
+
+/* =========================
+   Header
+========================= */
+
+.card-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.back-button,
+.edit-card-button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.3rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.back-button:hover,
+.edit-card-button:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   Main Card
+========================= */
+
+.card-details {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+}
+
+.card-details h1 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  color: #111827;
+}
+
+.card-page-section {
+  margin-bottom: 2.5rem;
+}
+
+.card-page-section h2 {
+  margin-bottom: 1rem;
+  color: #374151;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* =========================
+   Keyword Tags
+========================= */
+
+.card-keyword-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.keyword-tag {
+  background: #dbeafe;
+  color: #1d4ed8;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* =========================
+   Content
+========================= */
+
+.card-content {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  background: #fafafa;
+  line-height: 1.7;
+  color: #374151;
+  min-height: 200px;
+}
+
+.card-content img {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+.card-content p:first-child {
+  margin-top: 0;
+}
+
+.card-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* =========================
+   Form
+========================= */
+
+.card-form-group {
+  margin-bottom: 1.75rem;
+}
+
+.card-form-group label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.card-form-group input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  font-size: 0.95rem;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.card-form-group input:focus {
+  border-color: #2563eb;
+}
+
+.card-form-group small {
+  display: block;
+  margin-top: 0.4rem;
+  color: #6b7280;
+}
+
+/* =========================
+   Tiptap
+========================= */
+
+.card-form-group .tiptap-editor,
+.card-form-group .ProseMirror {
+  min-height: 300px;
+}
+
+.card-form-group .ProseMirror {
+  padding: 1rem;
+}
+
+/* =========================
+   Buttons
+========================= */
+
+.card-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.card-edit-actions button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 1.6rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.card-edit-actions button:first-child {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.card-edit-actions button:first-child:hover {
+  background: #d1d5db;
+}
+
+.card-edit-actions button:last-child {
+  background: #2563eb;
+  color: white;
+}
+
+.card-edit-actions button:last-child:hover {
+  background: #1d4ed8;
+}
+
+.card-edit-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   Error
+========================= */
+
+.card-save-error {
+  color: #dc2626;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 768px) {
+  .card-page {
+    padding: 1rem;
+  }
+
+  .card-page-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .back-button,
+  .edit-card-button {
+    width: 100%;
+  }
+
+  .card-details {
+    padding: 1.5rem;
+  }
+
+  .card-details h1 {
+    font-size: 1.6rem;
+  }
+
+  .card-edit-actions {
+    flex-direction: column;
+  }
+
+  .card-edit-actions button {
+    width: 100%;
+  }
+}
