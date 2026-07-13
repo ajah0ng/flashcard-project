@@ -5,6 +5,7 @@ import CreateDeckModal from "./modals/CreateDeckModal";
 import axios from "axios";
 import '../styles/CollectionsPage.css'
 import '../styles/Page.css'
+import '../styles/Buttons.css'
 
 const deckColours = [
   "#6366F1", // Indigo
@@ -100,21 +101,26 @@ function CollectionPage() {
     return (
         <div id="collection-page">
             <div className="section-1-page">
-                <button onClick={() => navigate("/")}>
-                    Go back to My Collections
+                <button
+                    className="back-button"
+                    onClick={() => navigate("/")}
+                >
+                    ← Back to My Collections
                 </button>
 
-                <h1>{collection.collectionName}</h1>
+                <div className="title-row">
+                    <h1>{collection.collectionName}</h1>
+
+                    <div className="exam-buttons">
+                        <button type="button">Practice Mode</button>
+                        <button type="button">Exam Mode</button>
+                    </div>
+                </div>
             </div>
 
-            <div className="exam-buttons">
-                <button type="button">Practice Mode</button>
-                <button type="button">Exam Inspera mode</button>
-            </div>
 
             <div id="summary-table">
                 <h5>Lecture Decks to Revise</h5>
-
                 <h5>Lecture Decks most likely to be in exam</h5>
 
             </div>
