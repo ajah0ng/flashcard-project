@@ -4,6 +4,18 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import CreateDeckModal from "./modals/CreateDeckModal";
 import axios from "axios";
 import '../styles/CollectionsPage.css'
+import '../styles/Page.css'
+
+const deckColours = [
+  "#6366F1", // Indigo
+  "#10B981", // Emerald
+  "#F59E0B", // Amber
+  "#EF4444", // Red
+  "#8B5CF6", // Violet
+  "#06B6D4", // Cyan
+  "#EC4899", // Pink
+  "#84CC16", // Lime
+];
 
 const fetchCollection = async (collectionId) => {
     const response = await axios.get(
@@ -95,13 +107,15 @@ function CollectionPage() {
                 <h1>{collection.collectionName}</h1>
             </div>
 
+            <div className="exam-buttons">
+                <button type="button">Practice Mode</button>
+                <button type="button">Exam Inspera mode</button>
+            </div>
+
             <div id="summary-table">
                 <h5>Lecture Decks to Revise</h5>
 
                 <h5>Lecture Decks most likely to be in exam</h5>
-
-
-
 
             </div>
 
@@ -109,10 +123,14 @@ function CollectionPage() {
                     {!collection.decks || collection.decks.length === 0 ? (
                     <p>No decks in this collection.</p>
                     ) : (
-                    collection.decks.map((deck) => (
+                    collection.decks.map((deck, index) => (
                         <div
                         key={deck._id}
                         className="deck-card"
+                        style={{
+                            "--deck-colour":
+                                deckColours[index % deckColours.length],
+                        }}
                         role="button"
                         tabIndex={0}
                         onMouseEnter={() => handlePrefetchDeck(deck._id)}
