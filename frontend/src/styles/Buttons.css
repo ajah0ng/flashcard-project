@@ -1,0 +1,83 @@
+/* Back buttons go back to collections, go back to deck */
+.section-1-page button {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: #4f46e5;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.exam-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.exam-buttons button {
+  padding: 0.9rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+/* Practice */
+
+.exam-buttons button:first-child {
+  background: #6366f1;
+  color: white;
+
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25);
+}
+
+.exam-buttons button:first-child:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+}
+
+/* Exam */
+
+.exam-buttons button:last-child {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+
+.exam-buttons button:last-child:hover {
+  background: #eef2ff;
+  border-color: #6366f1;
+  color: #4f46e5;
+  transform: translateY(-2px);
+}
+
+/* ==========================
+   MOBILE
+========================== */
+
+@media (max-width: 900px) {
+  .section-1-page {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .exam-buttons {
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  .exam-buttons button {
+    flex: 1;
+  }
+}

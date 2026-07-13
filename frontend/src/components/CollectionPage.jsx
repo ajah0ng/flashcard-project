@@ -118,11 +118,20 @@ function CollectionPage() {
                 </div>
             </div>
 
-
             <div id="summary-table">
-                <h5>Lecture Decks to Revise</h5>
-                <h5>Lecture Decks most likely to be in exam</h5>
+                <div className="summary-card">
+                    <h3>📚 Lecture Decks to Revise</h3>
 
+                    <p className="summary-subtitle">
+                        Highest weighted lecture decks. Based on course outcomes that you have flagged as most likely to appear in the exam and to revise.
+                    </p>
+
+                    <ul>
+                        <li>Lecture 2 – Cell Biology</li>
+                        <li>Lecture 5 – DNA Replication</li>
+                        <li>Lecture 8 – Genetics</li>
+                    </ul>
+                </div>
             </div>
 
             <div className="decks-container">
