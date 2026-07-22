@@ -63,7 +63,7 @@ export const createCard = async (req, res) => {
 // UPDATE card
 export const updateCard = async (req, res) => {
   try {
-    const { courseOutcome, keyWords, content, favourite } = req.body;
+    const { courseOutcome, keyWords, content, favourite, flagged } = req.body;
 
     const updatedCard = await Card.findByIdAndUpdate(
       req.params.id,
@@ -79,6 +79,9 @@ export const updateCard = async (req, res) => {
         }),
         ...(favourite !== undefined && {
           favourite: Boolean(favourite),
+        }),
+        ...(flagged !== undefined && {
+          flagged: Boolean(flagged),
         }),
       },
       { new: true }
