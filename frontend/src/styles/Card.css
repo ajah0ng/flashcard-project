@@ -265,7 +265,64 @@
    Main Card
 ========================= */
 
+#card-page {
+  overscroll-behavior-x: contain;
+}
+
+.card-swipe-region {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-swipe-arrow {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: #eef2ff;
+  color: var(--deck-colour, #6366f1);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.card-swipe-arrow:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--deck-colour, #6366f1) 22%, white);
+  transform: scale(1.08);
+}
+
+.card-swipe-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.card-swipe-counter {
+  position: absolute;
+  top: -0.75rem;
+  right: 1.5rem;
+  margin: 0;
+  padding: 0.2rem 0.7rem;
+  background: var(--deck-colour, #6366f1);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
 .card-details {
+  position: relative;
   flex: 1 1 auto;
   min-width: 0;
   background: white;
@@ -273,6 +330,36 @@
   border-radius: 16px;
   padding: 2rem;
   box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+}
+
+@keyframes cardSlideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes cardSlideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.card-details.slide-next {
+  animation: cardSlideInFromRight 0.15s ease-out;
+}
+
+.card-details.slide-prev {
+  animation: cardSlideInFromLeft 0.15s ease-out;
 }
 
 .card-details h1 {
