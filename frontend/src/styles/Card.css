@@ -225,8 +225,7 @@
   margin-bottom: 2rem;
 }
 
-.back-button,
-.edit-card-button {
+.back-button {
   background: #2563eb;
   color: white;
   border: none;
@@ -238,8 +237,7 @@
   transition: 0.2s ease;
 }
 
-.back-button:hover,
-.edit-card-button:hover {
+.back-button:hover {
   background: #1d4ed8;
   transform: translateY(-2px);
 }
@@ -262,6 +260,32 @@
   color: #111827;
 }
 
+.card-title-display {
+  cursor: text;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+}
+
+.card-title-display:hover {
+  background-color: #f3f4f6;
+}
+
+.card-title-input {
+  display: block;
+  width: 100%;
+  margin: 0 0 2rem 0;
+  padding: 0;
+  font: inherit;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  border: none;
+  border-bottom: 2px solid #2563eb;
+  outline: none;
+  background: transparent;
+  box-sizing: border-box;
+}
+
 .card-page-section {
   margin-bottom: 2.5rem;
 }
@@ -280,122 +304,65 @@
 .card-keyword-list {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.6rem;
+  min-height: 2.5rem;
 }
 
 .keyword-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   background: #dbeafe;
   color: #1d4ed8;
-  padding: 0.45rem 0.9rem;
+  padding: 0.45rem 0.5rem 0.45rem 0.9rem;
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-/* =========================
-   Content
-========================= */
-
-.card-content {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1.5rem;
-  background: #fafafa;
-  line-height: 1.7;
-  color: #374151;
-  min-height: 200px;
-}
-
-.card-content img {
-  max-width: 100%;
-  border-radius: 10px;
-}
-
-.card-content p:first-child {
-  margin-top: 0;
-}
-
-.card-content p:last-child {
-  margin-bottom: 0;
-}
-
-/* =========================
-   Form
-========================= */
-
-.card-form-group {
-  margin-bottom: 1.75rem;
-}
-
-.card-form-group label {
-  display: block;
-  margin-bottom: 0.6rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-.card-form-group input {
-  width: 100%;
-  padding: 0.9rem 1rem;
-  font-size: 0.95rem;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  outline: none;
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-}
-
-.card-form-group input:focus {
-  border-color: #2563eb;
-}
-
-.card-form-group small {
-  display: block;
-  margin-top: 0.4rem;
-  color: #6b7280;
-}
-
-/* =========================
-   Buttons
-========================= */
-
-.card-edit-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.card-edit-actions button {
+.keyword-tag-delete {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
   border: none;
-  border-radius: 10px;
-  padding: 0.8rem 1.6rem;
-  font-weight: 600;
+  border-radius: 50%;
+  background: rgba(29, 78, 216, 0.15);
+  color: #1d4ed8;
+  font-size: 12px;
+  line-height: 1;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-.card-edit-actions button:first-child {
-  background: #e5e7eb;
-  color: #374151;
+.keyword-tag:hover .keyword-tag-delete {
+  display: inline-flex;
 }
 
-.card-edit-actions button:first-child:hover {
-  background: #d1d5db;
+.keyword-tag-delete:hover {
+  background: #dc2626;
+  color: #ffffff;
 }
 
-.card-edit-actions button:last-child {
-  background: #2563eb;
-  color: white;
+.keyword-add-input {
+  flex: 1 1 140px;
+  min-width: 140px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.85rem;
+  color: #111827;
+  border: 1px dashed #cbd5e1;
+  border-radius: 999px;
+  outline: none;
+  background: transparent;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
 }
 
-.card-edit-actions button:last-child:hover {
-  background: #1d4ed8;
-}
-
-.card-edit-actions button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.keyword-add-input:focus {
+  border-color: #2563eb;
+  border-style: solid;
 }
 
 /* =========================
@@ -423,8 +390,7 @@
     align-items: stretch;
   }
 
-  .back-button,
-  .edit-card-button {
+  .back-button {
     width: 100%;
   }
 
@@ -434,13 +400,5 @@
 
   .card-details h1 {
     font-size: 1.6rem;
-  }
-
-  .card-edit-actions {
-    flex-direction: column;
-  }
-
-  .card-edit-actions button {
-    width: 100%;
   }
 }

@@ -44,7 +44,7 @@ const insertImageFile = (view, file, pos) => {
     return true;
 };
 
-function Tiptap({ content = "", onChange }) {
+function Tiptap({ content = "", onChange, onBlur, autoFocus = false }) {
     const [isDraggingFile, setIsDraggingFile] = useState(false);
 
     const editor = useEditor({
@@ -59,6 +59,7 @@ function Tiptap({ content = "", onChange }) {
             }),
         ],
         content,
+        autofocus: autoFocus ? "end" : false,
         editorProps: {
             handleDrop: (view, event, _slice, moved) => {
                 if (moved) return false;
@@ -96,6 +97,9 @@ function Tiptap({ content = "", onChange }) {
         onUpdate({ editor }) {
             onChange(editor.getHTML());
         },
+        onBlur({ editor }) {
+            onBlur?.(editor.getHTML());
+        },
     });
 
     useEffect(() => {
@@ -118,7 +122,14 @@ function Tiptap({ content = "", onChange }) {
 
     return (
         <div className="tiptap-container">
-            <div className="tiptap-toolbar">
+            <div
+                className="tiptap-toolbar"
+                onMouseDown={(event) => {
+                    if (event.target.tagName !== "INPUT") {
+                        event.preventDefault();
+                    }
+                }}
+            >
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleBold().run()}

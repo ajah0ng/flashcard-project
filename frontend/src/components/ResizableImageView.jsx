@@ -50,6 +50,7 @@ function ResizableImageView({ node, updateAttributes, selected, deleteNode }) {
                 type="button"
                 className="tiptap-image-delete"
                 contentEditable={false}
+                onMouseDown={(event) => event.preventDefault()}
                 onClick={() => deleteNode()}
                 aria-label="Delete image"
             >
