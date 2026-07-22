@@ -130,6 +130,18 @@ function Home() {
                 )
             );
 
+            queryClient.setQueryData(
+                ["collection", collectionId],
+                (oldCollection) => {
+                    if (!oldCollection) return oldCollection;
+
+                    return {
+                        ...oldCollection,
+                        collectionName: response.data.collectionName,
+                    };
+                }
+            );
+
             setEditingCollectionId(null);
             setEditedName("");
         } catch (error) {
