@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import CreateCardModal from "./modals/CreateCardModal";
 import axios from "axios";
 import "../styles/CollectionsPage.css";
 import "../styles/Home.css";
 import "../styles/Card.css";
+import '../styles/Page.css'
+import filledStarIcon from '../../assets/filled-star.svg'
+import unfilledStarIcon from '../../assets/unfilled-star.svg'
 
 const fetchDeck = async (deckId) => {
   const response = await axios.get(
@@ -49,6 +52,40 @@ function DeckPage() {
     setShowCreateCardModal(false);
   };
 
+  const toggleFavourite = async (card) => {
+    const nextFavourite = !card.favourite;
+
+    queryClient.setQueryData(["deck", deckId], (oldDeck) => {
+      if (!oldDeck) return oldDeck;
+
+      return {
+        ...oldDeck,
+        cards: (oldDeck.cards || []).map((c) =>
+          c._id === card._id ? { ...c, favourite: nextFavourite } : c
+        ),
+      };
+    });
+
+    try {
+      await axios.put(`http://localhost:5001/api/cards/${card._id}`, {
+        favourite: nextFavourite,
+      });
+    } catch (err) {
+      console.error("Failed to update favourite:", err);
+
+      queryClient.setQueryData(["deck", deckId], (oldDeck) => {
+        if (!oldDeck) return oldDeck;
+
+        return {
+          ...oldDeck,
+          cards: (oldDeck.cards || []).map((c) =>
+            c._id === card._id ? { ...c, favourite: card.favourite } : c
+          ),
+        };
+      });
+    }
+  };
+
   if (isLoading) {
     return <h2>Loading...</h2>;
   }
@@ -65,26 +102,34 @@ function DeckPage() {
     );
   }
 
+  const location = useLocation();
+  const deckColour = location.state?.deckColour || "#6366F1";
+
   return (
-    <div id="deck-page">
+    <div id="deck-page"
+    
+    >
+
+      
       <div className="section-1-page">
-        <div>
           <button
             type="button"
             onClick={() =>
               navigate(`/collections/${collectionId}`)
             }
           >
-            Go Back
+            ←
           </button>
 
-          <h1>{deck.deckName}</h1>
-        </div>
+          <div className="title-row">
+              <h1>{deck.deckName}</h1>
 
-        <div className="exam-buttons">
-          <button type="button">Practice</button>
-          <button type="button">Exam Inspera mode</button>
-        </div>
+              <div className="exam-buttons">
+                  <button type="button">Practice Mode</button>
+                  <button type="button">Exam Mode</button>
+              </div>
+          </div>
+      
       </div>
 
       <div className="course-outline-container">
@@ -111,6 +156,28 @@ function DeckPage() {
               }}
             >
               <h3>{card.courseOutcome}</h3>
+              <div>
+                <button
+                  type="button"
+                  className="favourite-btn"
+                  aria-pressed={Boolean(card.favourite)}
+                  aria-label={
+                    card.favourite
+                      ? "Remove from favourites"
+                      : "Add to favourites"
+                  }
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggleFavourite(card);
+                  }}
+                >
+                  <img
+                    src={card.favourite ? filledStarIcon : unfilledStarIcon}
+                    alt=""
+                  />
+                </button>
+              </div>
+
             </div>
           ))
         )}

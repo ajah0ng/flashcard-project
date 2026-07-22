@@ -1,9 +1,11 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { formatDistanceToNow } from "date-fns";
 import CreateCollectionModal from "./modals/CreateCollectionModal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../styles/Home.css'
+import '../styles/Page.css'
 import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
 
 const fetchCollections = async () => {
@@ -54,6 +56,25 @@ function Home() {
             ["collections"],
             (old = []) => [...old, newCollection]
         );
+    };
+
+    const handleOpenCollection = (collectionId) => {
+        navigate(`/collections/${collectionId}`);
+
+        axios
+            .patch(`http://localhost:5001/api/collections/${collectionId}/study`)
+            .then((response) => {
+                queryClient.setQueryData(["collections"], (old = []) =>
+                    old.map((collection) =>
+                        collection._id === collectionId
+                            ? { ...collection, lastStudiedAt: response.data.lastStudiedAt }
+                            : collection
+                    )
+                );
+            })
+            .catch((error) => {
+                console.error("Failed to record last studied time:", error);
+            });
     };
 
     if (isLoading && collections.length === 0) {
@@ -132,7 +153,7 @@ function Home() {
                         }
                         onClick={() => {
                             if (editingCollectionId !== collection._id) {
-                                navigate(`/collections/${collection._id}`);
+                                handleOpenCollection(collection._id);
                             }
                         }}
                     >
@@ -187,7 +208,17 @@ function Home() {
                             </div>
 
                         </div>
-                        <p>{collection.decks.length} decks</p>
+                        <div>
+                            <p className="deck-count">{collection.decks.length} decks</p>
+                            <p className="last-accessed">
+                                {collection.lastStudiedAt
+                                    ? `Last accessed ${formatDistanceToNow(
+                                          new Date(collection.lastStudiedAt),
+                                          { addSuffix: true }
+                                      )}`
+                                    : "Not accessed yet"}
+                            </p>
+                        </div>
                     </div>
                 ))}
 

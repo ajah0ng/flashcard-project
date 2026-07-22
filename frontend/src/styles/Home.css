@@ -18,7 +18,7 @@
 }
 
 /* ==========================================
-   Grid Container
+   Collections Grid & Cards
    ========================================== */
 #collections-container {
   display: grid;
@@ -27,9 +27,6 @@
   align-items: stretch;
 }
 
-/* ==========================================
-   Individual Collection Cards
-   ========================================== */
 .collection-card {
   background-color: #ffffff;
   border: 1px solid #e5e7eb;
@@ -58,29 +55,30 @@
 .collection-card h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   color: #111827;
 }
 
-.collection-card input {
-  font: inherit;
+.collection-card .card-header input {
   font-size: 1.25rem;
   font-weight: 600;
   color: #111827;
-
-  margin: 0 0 0.5rem 0;
-  padding: 0;
-
-  border: none;
-  outline: none;
-  background: transparent;
-
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 0.15rem 0.4rem;
   width: 100%;
 }
-.collection-card p {
+
+.collection-card .deck-count {
   font-size: 0.875rem;
   color: #6b7280;
-  margin: 0;
+  margin: 0.75rem 0 0;
+}
+
+.collection-card .last-accessed {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin: 0.25rem 0 0;
 }
 
 .card-header {

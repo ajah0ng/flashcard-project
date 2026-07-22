@@ -5,6 +5,7 @@ import axios from "axios";
 import Tiptap from "./Tiptap";
 import "../styles/Card.css";
 import "../styles/CollectionsPage.css";
+import '../styles/Page.css'
 
 const fetchCard = async (cardId) => {
   const response = await axios.get(

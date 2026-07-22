@@ -6,13 +6,13 @@ import axios from "axios";
 import '../styles/CollectionsPage.css'
 import '../styles/Page.css'
 import '../styles/Buttons.css'
+// import { getDeckColour } from "../utils/deckColours";
 
 const deckColours = [
-  "#6366F1", // Indigo
   "#10B981", // Emerald
   "#F59E0B", // Amber
   "#EF4444", // Red
-  "#8B5CF6", // Violet
+
   "#06B6D4", // Cyan
   "#EC4899", // Pink
   "#84CC16", // Lime
@@ -150,16 +150,26 @@ function CollectionPage() {
                         tabIndex={0}
                         onMouseEnter={() => handlePrefetchDeck(deck._id)}
                         onClick={() =>
-                            navigate(
-                            `/collections/${collectionId}/decks/${deck._id}`
-                            )
+                        navigate(
+                            `/collections/${collectionId}/decks/${deck._id}`,
+                            {
+                            state: {
+                                deckColour: deckColours[index % deckColours.length],
+                            },
+                            }
+                        )
                         }
                         onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
+                        if (event.key === "Enter" || event.key === " ") {
                             navigate(
-                                `/collections/${collectionId}/decks/${deck._id}`
-                            );
+                            `/collections/${collectionId}/decks/${deck._id}`,
+                            {
+                                state: {
+                                deckColour: deckColours[index % deckColours.length],
+                                },
                             }
+                            );
+                        }
                         }}
                         >
                         <h3>{deck.deckName}</h3>
