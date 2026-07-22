@@ -10,26 +10,35 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
+  gap: 6px;
+  padding: 10px 12px;
   border-bottom: 1px solid #e5e7eb;
   background: #f9fafb;
 }
 
 .tiptap-toolbar button {
-  min-height: 36px;
-  padding: 8px 12px;
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: #ffffff;
   color: #111827;
   font-size: 14px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .tiptap-toolbar button:hover {
   background: #f3f4f6;
+  border-color: #c7d2fe;
 }
 
 .tiptap-toolbar button.active {
@@ -43,24 +52,33 @@
   cursor: not-allowed;
 }
 
+.tiptap-toolbar button:focus-visible,
+.color-picker:focus-within {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 .color-picker {
-  display: flex;
+  box-sizing: border-box;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 36px;
-  padding: 6px 10px;
+  height: 36px;
+  padding: 0 10px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: #ffffff;
+  color: #111827;
   font-size: 14px;
   cursor: pointer;
 }
 
 .color-picker input[type="color"] {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: none;
+  border-radius: 4px;
   background: transparent;
   cursor: pointer;
 }
@@ -111,12 +129,76 @@
   margin-bottom: 6px;
 }
 
+.tiptap-image-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 16px 0;
+  vertical-align: top;
+  line-height: 0;
+}
+
 .tiptap-editor .ProseMirror img {
   max-width: 100%;
+  width: 100%;
   height: auto;
   display: block;
-  margin: 16px 0;
   border-radius: 10px;
+  pointer-events: none;
+}
+
+.tiptap-image-wrapper.is-selected img {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.tiptap-image-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(17, 24, 39, 0.65);
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.tiptap-image-delete:hover {
+  background: rgba(220, 38, 38, 0.85);
+}
+
+.tiptap-image-wrapper:hover .tiptap-image-delete,
+.tiptap-image-wrapper.is-selected .tiptap-image-delete {
+  display: flex;
+}
+
+.tiptap-image-resize-handle {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: #2563eb;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: nwse-resize;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.tiptap-image-wrapper:hover .tiptap-image-resize-handle,
+.tiptap-image-wrapper.is-selected .tiptap-image-resize-handle,
+.tiptap-image-wrapper.is-resizing .tiptap-image-resize-handle {
+  opacity: 1;
 }
 
 .tiptap-editor .ProseMirror:focus {

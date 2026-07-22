@@ -1,12 +1,29 @@
 import { useEffect, useState } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Color } from "@tiptap/extension-color";
 import { Image } from "@tiptap/extension-image";
 import { Underline } from "@tiptap/extension-underline";
+import ResizableImageView from "./ResizableImageView";
 
 import "../styles/Tiptap.css";
+
+const ResizableImage = Image.extend({
+    addAttributes() {
+        return {
+            ...this.parent(),
+            width: {
+                default: null,
+                renderHTML: (attributes) =>
+                    attributes.width ? { width: attributes.width } : {},
+            },
+        };
+    },
+    addNodeView() {
+        return ReactNodeViewRenderer(ResizableImageView);
+    },
+});
 
 const insertImageFile = (view, file, pos) => {
     if (!file || !file.type.startsWith("image/")) return false;
@@ -36,7 +53,7 @@ function Tiptap({ content = "", onChange }) {
             TextStyle,
             Color,
             Underline,
-            Image.configure({
+            ResizableImage.configure({
                 inline: false,
                 allowBase64: true,
             }),
