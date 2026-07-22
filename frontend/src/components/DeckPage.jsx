@@ -9,6 +9,8 @@ import "../styles/Card.css";
 import '../styles/Page.css'
 import filledStarIcon from '../../assets/filled-star.svg'
 import unfilledStarIcon from '../../assets/unfilled-star.svg'
+import filledQuestionIcon from '../../assets/filled-question.svg'
+import unfilledQuestionIcon from '../../assets/unfilled-question.svg'
 import { getDeckColour } from "../utils/deckColours";
 
 const fetchDeck = async (deckId) => {
@@ -54,8 +56,8 @@ function DeckPage() {
     setShowCreateCardModal(false);
   };
 
-  const toggleFavourite = async (card) => {
-    const nextFavourite = !card.favourite;
+  const toggleCardField = async (card, field) => {
+    const nextValue = !card[field];
 
     queryClient.setQueryData(["deck", deckId], (oldDeck) => {
       if (!oldDeck) return oldDeck;
@@ -63,17 +65,17 @@ function DeckPage() {
       return {
         ...oldDeck,
         cards: (oldDeck.cards || []).map((c) =>
-          c._id === card._id ? { ...c, favourite: nextFavourite } : c
+          c._id === card._id ? { ...c, [field]: nextValue } : c
         ),
       };
     });
 
     try {
       await axios.put(`http://localhost:5001/api/cards/${card._id}`, {
-        favourite: nextFavourite,
+        [field]: nextValue,
       });
     } catch (err) {
-      console.error("Failed to update favourite:", err);
+      console.error(`Failed to update ${field}:`, err);
 
       queryClient.setQueryData(["deck", deckId], (oldDeck) => {
         if (!oldDeck) return oldDeck;
@@ -81,7 +83,7 @@ function DeckPage() {
         return {
           ...oldDeck,
           cards: (oldDeck.cards || []).map((c) =>
-            c._id === card._id ? { ...c, favourite: card.favourite } : c
+            c._id === card._id ? { ...c, [field]: card[field] } : c
           ),
         };
       });
@@ -155,29 +157,61 @@ function DeckPage() {
                 }
               }}
             >
-              <h3>{card.courseOutcome}</h3>
-              <div>
-                <button
-                  type="button"
-                  className="favourite-btn"
-                  aria-pressed={Boolean(card.favourite)}
-                  aria-label={
-                    card.favourite
-                      ? "Remove from favourites"
-                      : "Add to favourites"
-                  }
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    toggleFavourite(card);
-                  }}
-                >
-                  <img
-                    src={card.favourite ? filledStarIcon : unfilledStarIcon}
-                    alt=""
-                  />
-                </button>
-              </div>
+              <div className="course-outline-card-header">
+                <h3>{card.courseOutcome}</h3>
 
+                <div className="course-outline-card-icons">
+                  <button
+                    type="button"
+                    className="card-icon-toggle"
+                    aria-pressed={Boolean(card.flagged)}
+                    title={
+                      card.flagged
+                        ? "Unflag to revise content"
+                        : "Flag to revise content"
+                    }
+                    aria-label={
+                      card.flagged
+                        ? "Unflag to revise content"
+                        : "Flag to revise content"
+                    }
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleCardField(card, "flagged");
+                    }}
+                  >
+                    <img
+                      src={card.flagged ? filledQuestionIcon : unfilledQuestionIcon}
+                      alt=""
+                    />
+                  </button>
+
+                  <button
+                    type="button"
+                    className="card-icon-toggle"
+                    aria-pressed={Boolean(card.favourite)}
+                    title={
+                      card.favourite
+                        ? "Unflag as likely to be assessed"
+                        : "Flag as likely to be assessed"
+                    }
+                    aria-label={
+                      card.favourite
+                        ? "Unflag as likely to be assessed"
+                        : "Flag as likely to be assessed"
+                    }
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleCardField(card, "favourite");
+                    }}
+                  >
+                    <img
+                      src={card.favourite ? filledStarIcon : unfilledStarIcon}
+                      alt=""
+                    />
+                  </button>
+                </div>
+              </div>
             </div>
           ))
         )}
