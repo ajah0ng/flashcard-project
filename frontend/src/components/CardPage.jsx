@@ -6,6 +6,7 @@ import Tiptap from "./Tiptap";
 import "../styles/Card.css";
 import "../styles/CollectionsPage.css";
 import '../styles/Page.css'
+import { getDeckColour } from "../utils/deckColours";
 
 const fetchCard = async (cardId) => {
   const response = await axios.get(
@@ -19,6 +20,7 @@ function CardPage() {
   const { collectionId, deckId, cardId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const deckColour = getDeckColour(deckId);
 
   const [courseOutcome, setCourseOutcome] = useState("");
   const [content, setContent] = useState("");
@@ -154,7 +156,10 @@ function CardPage() {
         </button>
       </div>
 
-      <section className="card-details">
+      <section
+        className="card-details"
+        style={{ "--deck-colour": deckColour }}
+      >
         {isEditingTitle ? (
           <input
             autoFocus
