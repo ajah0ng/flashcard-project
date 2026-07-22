@@ -200,7 +200,7 @@ function CardPage() {
 
   return (
     <main id="card-page">
-      <div className="card-page-header">
+      <div className="card-page-layout">
         <button
           type="button"
           className="back-button"
@@ -210,135 +210,135 @@ function CardPage() {
         >
           Go Back
         </button>
+
+        <section
+          className="card-details"
+          style={{ "--deck-colour": deckColour }}
+        >
+          <div className="card-title-row">
+            {isEditingTitle ? (
+              <input
+                autoFocus
+                className="card-title-input"
+                value={courseOutcome}
+                onChange={(event) => setCourseOutcome(event.target.value)}
+                onBlur={commitTitle}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.currentTarget.blur();
+                  }
+
+                  if (event.key === "Escape") {
+                    cancelTitle();
+                  }
+                }}
+              />
+            ) : (
+              <h1
+                className="card-title-display"
+                title="Double-click to edit"
+                onDoubleClick={() => setIsEditingTitle(true)}
+              >
+                {card.courseOutcome}
+              </h1>
+            )}
+
+            <div className="course-outline-card-icons">
+              <button
+                type="button"
+                className="card-icon-toggle"
+                aria-pressed={Boolean(card.flagged)}
+                title={
+                  card.flagged
+                    ? "Unflag to revise content"
+                    : "Flag to revise content"
+                }
+                aria-label={
+                  card.flagged
+                    ? "Unflag to revise content"
+                    : "Flag to revise content"
+                }
+                onClick={() => toggleField("flagged")}
+              >
+                <img
+                  src={card.flagged ? filledQuestionIcon : unfilledQuestionIcon}
+                  alt=""
+                />
+              </button>
+
+              <button
+                type="button"
+                className="card-icon-toggle"
+                aria-pressed={Boolean(card.favourite)}
+                title={
+                  card.favourite
+                    ? "Unflag as likely to be assessed"
+                    : "Flag as likely to be assessed"
+                }
+                aria-label={
+                  card.favourite
+                    ? "Unflag as likely to be assessed"
+                    : "Flag as likely to be assessed"
+                }
+                onClick={() => toggleField("favourite")}
+              >
+                <img
+                  src={card.favourite ? filledStarIcon : unfilledStarIcon}
+                  alt=""
+                />
+              </button>
+            </div>
+          </div>
+
+          <div className="card-page-section">
+            <h2>Keywords</h2>
+
+            <div className="card-keyword-list">
+              {displayedKeywords.map((keyword) => (
+                <span key={keyword} className="keyword-tag">
+                  {keyword}
+
+                  <button
+                    type="button"
+                    className="keyword-tag-delete"
+                    aria-label={`Remove ${keyword}`}
+                    onClick={() => removeKeyword(keyword)}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+
+              <input
+                type="text"
+                className="keyword-add-input"
+                placeholder="Add keyword…"
+                value={newKeyword}
+                onChange={(event) => setNewKeyword(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addKeyword();
+                  }
+                }}
+                onBlur={addKeyword}
+              />
+            </div>
+          </div>
+
+          <div className="card-page-section">
+            <h2>Content</h2>
+
+            <Tiptap
+              content={content}
+              onChange={setContent}
+              onBlur={commitContent}
+            />
+          </div>
+
+          {saveError && <p className="card-save-error">{saveError}</p>}
+        </section>
       </div>
-
-      <section
-        className="card-details"
-        style={{ "--deck-colour": deckColour }}
-      >
-        <div className="card-title-row">
-          {isEditingTitle ? (
-            <input
-              autoFocus
-              className="card-title-input"
-              value={courseOutcome}
-              onChange={(event) => setCourseOutcome(event.target.value)}
-              onBlur={commitTitle}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.currentTarget.blur();
-                }
-
-                if (event.key === "Escape") {
-                  cancelTitle();
-                }
-              }}
-            />
-          ) : (
-            <h1
-              className="card-title-display"
-              title="Double-click to edit"
-              onDoubleClick={() => setIsEditingTitle(true)}
-            >
-              {card.courseOutcome}
-            </h1>
-          )}
-
-          <div className="course-outline-card-icons">
-            <button
-              type="button"
-              className="card-icon-toggle"
-              aria-pressed={Boolean(card.flagged)}
-              title={
-                card.flagged
-                  ? "Unflag to revise content"
-                  : "Flag to revise content"
-              }
-              aria-label={
-                card.flagged
-                  ? "Unflag to revise content"
-                  : "Flag to revise content"
-              }
-              onClick={() => toggleField("flagged")}
-            >
-              <img
-                src={card.flagged ? filledQuestionIcon : unfilledQuestionIcon}
-                alt=""
-              />
-            </button>
-
-            <button
-              type="button"
-              className="card-icon-toggle"
-              aria-pressed={Boolean(card.favourite)}
-              title={
-                card.favourite
-                  ? "Unflag as likely to be assessed"
-                  : "Flag as likely to be assessed"
-              }
-              aria-label={
-                card.favourite
-                  ? "Unflag as likely to be assessed"
-                  : "Flag as likely to be assessed"
-              }
-              onClick={() => toggleField("favourite")}
-            >
-              <img
-                src={card.favourite ? filledStarIcon : unfilledStarIcon}
-                alt=""
-              />
-            </button>
-          </div>
-        </div>
-
-        <div className="card-page-section">
-          <h2>Keywords</h2>
-
-          <div className="card-keyword-list">
-            {displayedKeywords.map((keyword) => (
-              <span key={keyword} className="keyword-tag">
-                {keyword}
-
-                <button
-                  type="button"
-                  className="keyword-tag-delete"
-                  aria-label={`Remove ${keyword}`}
-                  onClick={() => removeKeyword(keyword)}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-
-            <input
-              type="text"
-              className="keyword-add-input"
-              placeholder="Add keyword…"
-              value={newKeyword}
-              onChange={(event) => setNewKeyword(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  addKeyword();
-                }
-              }}
-              onBlur={addKeyword}
-            />
-          </div>
-        </div>
-
-        <div className="card-page-section">
-          <h2>Content</h2>
-
-          <Tiptap
-            content={content}
-            onChange={setContent}
-            onBlur={commitContent}
-          />
-        </div>
-
-        {saveError && <p className="card-save-error">{saveError}</p>}
-      </section>
     </main>
   );
 }
