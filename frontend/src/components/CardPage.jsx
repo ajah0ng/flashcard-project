@@ -7,6 +7,10 @@ import "../styles/Card.css";
 import "../styles/CollectionsPage.css";
 import '../styles/Page.css'
 import { getDeckColour } from "../utils/deckColours";
+import filledStarIcon from '../../assets/filled-star.svg'
+import unfilledStarIcon from '../../assets/unfilled-star.svg'
+import filledQuestionIcon from '../../assets/filled-question.svg'
+import unfilledQuestionIcon from '../../assets/unfilled-question.svg'
 
 const fetchCard = async (cardId) => {
   const response = await axios.get(
@@ -96,6 +100,58 @@ function CardPage() {
     }
   };
 
+  const toggleField = async (field) => {
+    const nextValue = !card[field];
+
+    queryClient.setQueryData(["card", cardId], (oldCard) => {
+      if (!oldCard) return oldCard;
+      return { ...oldCard, [field]: nextValue };
+    });
+
+    queryClient.setQueryData(["deck", deckId], (oldDeck) => {
+      if (!oldDeck) return oldDeck;
+
+      return {
+        ...oldDeck,
+        cards: (oldDeck.cards || []).map((existingCard) =>
+          existingCard._id === cardId
+            ? { ...existingCard, [field]: nextValue }
+            : existingCard
+        ),
+      };
+    });
+
+    try {
+      await axios.put(`http://localhost:5001/api/cards/${cardId}`, {
+        [field]: nextValue,
+      });
+    } catch (err) {
+      console.error(`Failed to update ${field}:`, err);
+
+      setSaveError(
+        err.response?.data?.message || "Unable to update the card."
+      );
+
+      queryClient.setQueryData(["card", cardId], (oldCard) => {
+        if (!oldCard) return oldCard;
+        return { ...oldCard, [field]: card[field] };
+      });
+
+      queryClient.setQueryData(["deck", deckId], (oldDeck) => {
+        if (!oldDeck) return oldDeck;
+
+        return {
+          ...oldDeck,
+          cards: (oldDeck.cards || []).map((existingCard) =>
+            existingCard._id === cardId
+              ? { ...existingCard, [field]: card[field] }
+              : existingCard
+          ),
+        };
+      });
+    }
+  };
+
   const commitTitle = () => {
     setIsEditingTitle(false);
 
@@ -160,32 +216,80 @@ function CardPage() {
         className="card-details"
         style={{ "--deck-colour": deckColour }}
       >
-        {isEditingTitle ? (
-          <input
-            autoFocus
-            className="card-title-input"
-            value={courseOutcome}
-            onChange={(event) => setCourseOutcome(event.target.value)}
-            onBlur={commitTitle}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.currentTarget.blur();
-              }
+        <div className="card-title-row">
+          {isEditingTitle ? (
+            <input
+              autoFocus
+              className="card-title-input"
+              value={courseOutcome}
+              onChange={(event) => setCourseOutcome(event.target.value)}
+              onBlur={commitTitle}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.currentTarget.blur();
+                }
 
-              if (event.key === "Escape") {
-                cancelTitle();
+                if (event.key === "Escape") {
+                  cancelTitle();
+                }
+              }}
+            />
+          ) : (
+            <h1
+              className="card-title-display"
+              title="Double-click to edit"
+              onDoubleClick={() => setIsEditingTitle(true)}
+            >
+              {card.courseOutcome}
+            </h1>
+          )}
+
+          <div className="course-outline-card-icons">
+            <button
+              type="button"
+              className="card-icon-toggle"
+              aria-pressed={Boolean(card.flagged)}
+              title={
+                card.flagged
+                  ? "Unflag to revise content"
+                  : "Flag to revise content"
               }
-            }}
-          />
-        ) : (
-          <h1
-            className="card-title-display"
-            title="Double-click to edit"
-            onDoubleClick={() => setIsEditingTitle(true)}
-          >
-            {card.courseOutcome}
-          </h1>
-        )}
+              aria-label={
+                card.flagged
+                  ? "Unflag to revise content"
+                  : "Flag to revise content"
+              }
+              onClick={() => toggleField("flagged")}
+            >
+              <img
+                src={card.flagged ? filledQuestionIcon : unfilledQuestionIcon}
+                alt=""
+              />
+            </button>
+
+            <button
+              type="button"
+              className="card-icon-toggle"
+              aria-pressed={Boolean(card.favourite)}
+              title={
+                card.favourite
+                  ? "Unflag as likely to be assessed"
+                  : "Flag as likely to be assessed"
+              }
+              aria-label={
+                card.favourite
+                  ? "Unflag as likely to be assessed"
+                  : "Flag as likely to be assessed"
+              }
+              onClick={() => toggleField("favourite")}
+            >
+              <img
+                src={card.favourite ? filledStarIcon : unfilledStarIcon}
+                alt=""
+              />
+            </button>
+          </div>
+        </div>
 
         <div className="card-page-section">
           <h2>Keywords</h2>
