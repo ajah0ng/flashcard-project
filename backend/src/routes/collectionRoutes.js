@@ -1,5 +1,5 @@
 import express from "express"
-import { getCollectionList, getCollectionById, createCollection, updateCollection, deleteCollection } from "../controllers/collectionController.js"
+import { getCollectionList, getCollectionById, createCollection, updateCollection, deleteCollection, updateLastStudied } from "../controllers/collectionController.js"
 
 
 const router = express.Router();
@@ -17,6 +17,8 @@ router.put("/:id", updateCollection);
 
 // DELETE deck
 router.delete("/:id", deleteCollection);
+
+router.patch("/:id/study", updateLastStudied);
 
 
 export default router;

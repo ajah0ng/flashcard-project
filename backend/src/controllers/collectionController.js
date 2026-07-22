@@ -153,3 +153,20 @@ export async function deleteCollection(req, res) {
     }
 }
 
+export const updateLastStudied = async (req, res) => {
+    try {
+        const collection = await Collection.findById(req.params.id);
+
+        if (!collection) {
+            return res.status(404).json({ message: "Collection not found" });
+        }
+
+        collection.lastStudiedAt = new Date();
+        await collection.save();
+
+        res.json(collection);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+

@@ -12,6 +12,11 @@ const cardSchema = new mongoose.Schema({
 
     content: {
         type: String,
+    },
+
+    favourite: {
+        type: Boolean,
+        default: false,
     }
 })
 

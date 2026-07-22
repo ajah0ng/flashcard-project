@@ -12,7 +12,11 @@ const collectionSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Deck",
         }
-    ]
+    ],
+
+    lastStudiedAt: {
+       type: Date,
+    }
 })
 
 const Collection = mongoose.model("Collection", collectionSchema)
