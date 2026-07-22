@@ -6,17 +6,7 @@ import axios from "axios";
 import '../styles/CollectionsPage.css'
 import '../styles/Page.css'
 import '../styles/Buttons.css'
-// import { getDeckColour } from "../utils/deckColours";
-
-const deckColours = [
-  "#10B981", // Emerald
-  "#F59E0B", // Amber
-  "#EF4444", // Red
-
-  "#06B6D4", // Cyan
-  "#EC4899", // Pink
-  "#84CC16", // Lime
-];
+import { getDeckColour } from "../utils/deckColours";
 
 const fetchCollection = async (collectionId) => {
     const response = await axios.get(
@@ -138,36 +128,25 @@ function CollectionPage() {
                     {!collection.decks || collection.decks.length === 0 ? (
                     <p>No decks in this collection.</p>
                     ) : (
-                    collection.decks.map((deck, index) => (
+                    collection.decks.map((deck) => (
                         <div
                         key={deck._id}
                         className="deck-card"
                         style={{
-                            "--deck-colour":
-                                deckColours[index % deckColours.length],
+                            "--deck-colour": getDeckColour(deck._id),
                         }}
                         role="button"
                         tabIndex={0}
                         onMouseEnter={() => handlePrefetchDeck(deck._id)}
                         onClick={() =>
                         navigate(
-                            `/collections/${collectionId}/decks/${deck._id}`,
-                            {
-                            state: {
-                                deckColour: deckColours[index % deckColours.length],
-                            },
-                            }
+                            `/collections/${collectionId}/decks/${deck._id}`
                         )
                         }
                         onKeyDown={(event) => {
                         if (event.key === "Enter" || event.key === " ") {
                             navigate(
-                            `/collections/${collectionId}/decks/${deck._id}`,
-                            {
-                                state: {
-                                deckColour: deckColours[index % deckColours.length],
-                                },
-                            }
+                            `/collections/${collectionId}/decks/${deck._id}`
                             );
                         }
                         }}

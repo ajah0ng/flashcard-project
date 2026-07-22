@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import CreateCardModal from "./modals/CreateCardModal";
 import axios from "axios";
@@ -9,6 +9,7 @@ import "../styles/Card.css";
 import '../styles/Page.css'
 import filledStarIcon from '../../assets/filled-star.svg'
 import unfilledStarIcon from '../../assets/unfilled-star.svg'
+import { getDeckColour } from "../utils/deckColours";
 
 const fetchDeck = async (deckId) => {
   const response = await axios.get(
@@ -22,6 +23,7 @@ function DeckPage() {
   const { collectionId, deckId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const deckColour = getDeckColour(deckId);
 
   const [showCreateCardModal, setShowCreateCardModal] =
     useState(false);
@@ -102,9 +104,6 @@ function DeckPage() {
     );
   }
 
-  const location = useLocation();
-  const deckColour = location.state?.deckColour || "#6366F1";
-
   return (
     <div id="deck-page"
     
@@ -140,6 +139,7 @@ function DeckPage() {
             <div
               key={card._id}
               className="course-outline-card"
+              style={{ "--deck-colour": deckColour }}
               role="button"
               tabIndex={0}
               onClick={() =>
