@@ -155,6 +155,7 @@ function CardPage() {
       <div className="card-page-header">
         <button
           type="button"
+          className="back-button"
           onClick={() =>
             navigate(
               `/collections/${collectionId}/decks/${deckId}`

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { TextStyle } from "@tiptap/extension-text-style";
@@ -8,7 +8,28 @@ import { Underline } from "@tiptap/extension-underline";
 
 import "../styles/Tiptap.css";
 
+const insertImageFile = (view, file, pos) => {
+    if (!file || !file.type.startsWith("image/")) return false;
+
+    const reader = new FileReader();
+
+    reader.onload = (readerEvent) => {
+        const node = view.state.schema.nodes.image.create({
+            src: readerEvent.target.result,
+        });
+
+        const insertPos = pos ?? view.state.selection.from;
+
+        view.dispatch(view.state.tr.insert(insertPos, node));
+    };
+
+    reader.readAsDataURL(file);
+    return true;
+};
+
 function Tiptap({ content = "", onChange }) {
+    const [isDraggingFile, setIsDraggingFile] = useState(false);
+
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -21,6 +42,40 @@ function Tiptap({ content = "", onChange }) {
             }),
         ],
         content,
+        editorProps: {
+            handleDrop: (view, event, _slice, moved) => {
+                if (moved) return false;
+
+                const file = event.dataTransfer?.files?.[0];
+                if (!file) return false;
+
+                const coords = view.posAtCoords({
+                    left: event.clientX,
+                    top: event.clientY,
+                });
+
+                if (insertImageFile(view, file, coords?.pos)) {
+                    event.preventDefault();
+                    return true;
+                }
+
+                return false;
+            },
+            handlePaste: (view, event) => {
+                const file = Array.from(event.clipboardData?.items || [])
+                    .find((item) => item.type.startsWith("image/"))
+                    ?.getAsFile();
+
+                if (!file) return false;
+
+                if (insertImageFile(view, file)) {
+                    event.preventDefault();
+                    return true;
+                }
+
+                return false;
+            },
+        },
         onUpdate({ editor }) {
             onChange(editor.getHTML());
         },
@@ -138,7 +193,34 @@ function Tiptap({ content = "", onChange }) {
                 </button>
             </div>
 
-            <EditorContent editor={editor} className="tiptap-editor" />
+            <div
+                className={
+                    isDraggingFile
+                        ? "tiptap-editor-wrapper is-dragging"
+                        : "tiptap-editor-wrapper"
+                }
+                onDragEnter={(event) => {
+                    if (event.dataTransfer.types.includes("Files")) {
+                        event.preventDefault();
+                        setIsDraggingFile(true);
+                    }
+                }}
+                onDragOver={(event) => {
+                    if (event.dataTransfer.types.includes("Files")) {
+                        event.preventDefault();
+                    }
+                }}
+                onDragLeave={(event) => {
+                    if (event.currentTarget.contains(event.relatedTarget)) {
+                        return;
+                    }
+
+                    setIsDraggingFile(false);
+                }}
+                onDrop={() => setIsDraggingFile(false)}
+            >
+                <EditorContent editor={editor} className="tiptap-editor" />
+            </div>
         </div>
     );
 }

@@ -65,6 +65,18 @@
   cursor: pointer;
 }
 
+.tiptap-editor-wrapper {
+  border-radius: 0 0 12px 12px;
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.tiptap-editor-wrapper.is-dragging {
+  background-color: #eff6ff;
+  box-shadow: inset 0 0 0 2px #2563eb;
+}
+
 .tiptap-editor .ProseMirror {
   min-height: 400px;
   padding: 18px;

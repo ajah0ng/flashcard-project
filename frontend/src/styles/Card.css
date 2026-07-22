@@ -356,19 +356,6 @@
 }
 
 /* =========================
-   Tiptap
-========================= */
-
-.card-form-group .tiptap-editor,
-.card-form-group .ProseMirror {
-  min-height: 300px;
-}
-
-.card-form-group .ProseMirror {
-  padding: 1rem;
-}
-
-/* =========================
    Buttons
 ========================= */
 
