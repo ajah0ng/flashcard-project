@@ -35,10 +35,6 @@ export const createCard = async (req, res) => {
       return res.status(400).json({ message: "deckId is required" });
     }
 
-    if (!courseOutcome || !courseOutcome.trim()) {
-      return res.status(400).json({ message: "courseOutcome is required" });
-    }
-
     const deck = await Deck.findById(deckId);
 
     if (!deck) {
@@ -46,7 +42,7 @@ export const createCard = async (req, res) => {
     }
 
     const newCard = await Card.create({
-      courseOutcome: courseOutcome.trim(),
+      courseOutcome: courseOutcome?.trim() || "",
       keyWords: Array.isArray(keyWords) ? keyWords : [],
       content: content?.trim() || "",
     });
