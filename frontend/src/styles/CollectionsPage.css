@@ -44,6 +44,7 @@
 }
 
 .deck-card h3.deck-name-placeholder,
+.collection-card h3.deck-name-placeholder,
 .title-row h1.deck-name-placeholder {
   color: #9ca3af;
   font-style: italic;

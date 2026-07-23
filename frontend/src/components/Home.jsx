@@ -1,12 +1,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
-import CreateCollectionModal from "./modals/CreateCollectionModal";
 import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../styles/Home.css'
 import '../styles/Page.css'
+import '../styles/CollectionsPage.css'
 import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
 
 const fetchCollections = async () => {
@@ -32,9 +32,6 @@ function Home() {
     const [openEditDeleteMenu, setOpenEditDeleteMenu] = useState(null);
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
-    const [showCreateCollectionModal, setShowCreateCollectionModal] =
-        useState(false);
-
     const {
         data: collections = [],
         isLoading,
@@ -58,6 +55,22 @@ function Home() {
             ["collections"],
             (old = []) => [...old, newCollection]
         );
+    };
+
+    const handleCreateCollection = async () => {
+        try {
+            const response = await axios.post(
+                "http://localhost:5001/api/collections",
+                {
+                    collectionName: "",
+                    decks: [],
+                }
+            );
+
+            addCollection(response.data);
+        } catch (error) {
+            console.error("Failed to create collection:", error);
+        }
     };
 
     const handleOpenCollection = (collectionId) => {
@@ -174,6 +187,7 @@ function Home() {
                             {/* Users directly edit collection name */}
                             {editingCollectionId === collection._id ? (
                                 <input
+                                    className="deck-name-input"
                                     autoFocus
                                     value={editedName}
                                     onChange={(e) => setEditedName(e.target.value)}
@@ -191,13 +205,18 @@ function Home() {
                                 />
                             ) : (
                                 <h3
+                                    className={
+                                        !collection.collectionName
+                                            ? "deck-name-placeholder"
+                                            : undefined
+                                    }
                                     onClick={(e) => e.stopPropagation()}
                                     onDoubleClick={(e) => {
                                         e.stopPropagation();
                                         handleEdit(collection._id);
                                     }}
                                 >
-                                    {collection.collectionName}
+                                    {collection.collectionName || "Untitled Collection"}
                                 </h3>
                             )}
                             <div className="menu-container">
@@ -247,21 +266,11 @@ function Home() {
 
                 <button
                     className="create-btn"
-                    onClick={() =>
-                        setShowCreateCollectionModal(true)
-                    }
+                    onClick={handleCreateCollection}
                 >
                     Create Collection +
                 </button>
             </div>
-
-            <CreateCollectionModal
-                isOpen={showCreateCollectionModal}
-                onClose={() =>
-                    setShowCreateCollectionModal(false)
-                }
-                onCollectionCreated={addCollection}
-            />
 
             <DeleteConfirmationModal
                 isOpen={!!deleteConfirmId}

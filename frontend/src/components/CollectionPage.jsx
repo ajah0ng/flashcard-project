@@ -262,8 +262,12 @@ function CollectionPage() {
                             onBlur={handleSaveCollectionName}
                         />
                     ) : (
-                        <h1 ref={collectionTitleRef} onDoubleClick={handleEditCollectionName}>
-                            {collection.collectionName}
+                        <h1
+                            ref={collectionTitleRef}
+                            className={!collection.collectionName ? "deck-name-placeholder" : undefined}
+                            onDoubleClick={handleEditCollectionName}
+                        >
+                            {collection.collectionName || "Untitled Collection"}
                         </h1>
                     )}
 
