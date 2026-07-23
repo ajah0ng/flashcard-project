@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 import CreateCollectionModal from "./modals/CreateCollectionModal";
+import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../styles/Home.css'
@@ -29,6 +30,7 @@ function Home() {
     const [editedName, setEditedName] = useState("");
 
     const [openEditDeleteMenu, setOpenEditDeleteMenu] = useState(null);
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
     const [showCreateCollectionModal, setShowCreateCollectionModal] =
         useState(false);
@@ -82,7 +84,6 @@ function Home() {
     }
 
 
-    // Should show a modal
     const handleDelete = async (collectionId) => {
         try {
             await axios.delete(
@@ -94,7 +95,7 @@ function Home() {
                 old.filter((collection) => collection._id !== collectionId)
             );
 
-            setOpenEditDeleteMenu(null);
+            setDeleteConfirmId(null);
         } catch (error) {
             console.error("Failed to delete collection:", error);
         }
@@ -189,7 +190,15 @@ function Home() {
                                     onBlur={() => handleSaveEdit(collection._id)}
                                 />
                             ) : (
-                                <h3>{collection.collectionName}</h3>
+                                <h3
+                                    onClick={(e) => e.stopPropagation()}
+                                    onDoubleClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEdit(collection._id);
+                                    }}
+                                >
+                                    {collection.collectionName}
+                                </h3>
                             )}
                             <div className="menu-container">
                                 <button
@@ -209,10 +218,12 @@ function Home() {
                                         className="menu"
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        <button onClick={() => handleEdit(collection._id)}>
-                                            Edit
-                                        </button>
-                                        <button onClick={() => handleDelete(collection._id)}>
+                                        <button
+                                            onClick={() => {
+                                                setDeleteConfirmId(collection._id);
+                                                setOpenEditDeleteMenu(null);
+                                            }}
+                                        >
                                             Delete
                                         </button>
                                     </div>
@@ -250,6 +261,17 @@ function Home() {
                     setShowCreateCollectionModal(false)
                 }
                 onCollectionCreated={addCollection}
+            />
+
+            <DeleteConfirmationModal
+                isOpen={!!deleteConfirmId}
+                onClose={() => setDeleteConfirmId(null)}
+                onConfirm={() => handleDelete(deleteConfirmId)}
+                itemName={
+                    collections.find(
+                        (collection) => collection._id === deleteConfirmId
+                    )?.collectionName
+                }
             />
         </div>
     );
