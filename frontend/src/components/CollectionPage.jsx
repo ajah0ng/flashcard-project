@@ -286,11 +286,25 @@ function CollectionPage() {
                         Highest weighted lecture decks. Based on course outcomes that you have flagged as most likely to appear in the exam and to revise.
                     </p>
 
-                    <ul>
-                        <li>Lecture 2 – Cell Biology</li>
-                        <li>Lecture 5 – DNA Replication</li>
-                        <li>Lecture 8 – Genetics</li>
-                    </ul>
+                    {collection.decksToRevise && collection.decksToRevise.length > 0 ? (
+                        <ul>
+                            {collection.decksToRevise.slice(0, 3).map((deck) => (
+                                <li
+                                    key={deck._id}
+                                    className="summary-list-item"
+                                    onClick={() =>
+                                        navigate(`/collections/${collectionId}/decks/${deck._id}`)
+                                    }
+                                >
+                                    {deck.deckName || "Untitled Lecture"}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="summary-subtitle">
+                            No decks flagged for revision yet.
+                        </p>
+                    )}
                 </div>
             </div>
 

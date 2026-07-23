@@ -29,6 +29,33 @@ export async function getCollectionList(req, res) {
     }
 }
 
+// Cards that are both starred (favourite) and flagged for revision are
+// weighted highest since they're both likely to appear on the exam and
+// not yet mastered. Ranking is by raw counts, not proportion of the deck.
+function scoreCard(card) {
+    if (card.favourite && card.flagged) return 3;
+    if (card.favourite || card.flagged) return 1;
+    return 0;
+}
+
+function rankDecksToRevise(decks) {
+    return decks
+        .map((deck) => {
+            const cards = deck.cards || [];
+            const bothCount = cards.filter((c) => c.favourite && c.flagged).length;
+            const deckScore = cards.reduce((sum, c) => sum + scoreCard(c), 0);
+
+            return {
+                _id: deck._id,
+                deckName: deck.deckName,
+                deckScore,
+                bothCount,
+            };
+        })
+        .filter((deck) => deck.deckScore > 0)
+        .sort((a, b) => b.deckScore - a.deckScore || b.bothCount - a.bothCount);
+}
+
 export async function getCollectionById(req, res) {
     try {
         const { id } = req.params;
@@ -36,7 +63,11 @@ export async function getCollectionById(req, res) {
         const collection = await Collection.findById(id)
             .populate({
                 path: "decks",
-                select: "_id deckName cards"
+                select: "_id deckName cards",
+                populate: {
+                    path: "cards",
+                    select: "favourite flagged"
+                }
             })
             .lean();
 
@@ -46,13 +77,16 @@ export async function getCollectionById(req, res) {
             });
         }
 
+        const decksToRevise = rankDecksToRevise(collection.decks);
+
         const formattedCollection = {
             ...collection,
             decks: collection.decks.map((deck) => ({
                 _id: deck._id,
                 deckName: deck.deckName,
                 cards: deck.cards
-            }))
+            })),
+            decksToRevise
         };
 
         res.status(200).json(formattedCollection);
@@ -70,19 +104,11 @@ export async function getCollectionById(req, res) {
 export async function createCollection(req, res) {
 
   try {
-    const { collectionName, decks } = req.body;
-
-    console.log(req.body)
-  
-    if (!collectionName) {
-      return res.status(400).json({ message: "Course name is required" });
-    }
+    const { collectionName = "", decks = [] } = req.body;
 
     const createdDecks = await Deck.insertMany(
         decks.filter(name => name.trim()).map(name => ({ deckName: name }))
     );
-
-    console.log(createdDecks)
 
     const deckIds = createdDecks.map((deck) => deck._id);
 

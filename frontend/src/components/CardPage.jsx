@@ -9,6 +9,7 @@ import "../styles/CollectionsPage.css";
 import "../styles/Home.css";
 import '../styles/Page.css'
 import { getDeckColour } from "../utils/deckColours";
+import { rankDecksToRevise } from "../utils/rankDecks";
 import filledStarIcon from '../../assets/filled-star.svg'
 import unfilledStarIcon from '../../assets/unfilled-star.svg'
 import filledQuestionIcon from '../../assets/filled-question.svg'
@@ -213,12 +214,10 @@ function CardPage() {
     }
   };
 
-  const toggleField = async (field) => {
-    const nextValue = !card[field];
-
+  const applyFieldToCaches = (field, value) => {
     queryClient.setQueryData(["card", cardId], (oldCard) => {
       if (!oldCard) return oldCard;
-      return { ...oldCard, [field]: nextValue };
+      return { ...oldCard, [field]: value };
     });
 
     queryClient.setQueryData(["deck", deckId], (oldDeck) => {
@@ -228,11 +227,41 @@ function CardPage() {
         ...oldDeck,
         cards: (oldDeck.cards || []).map((existingCard) =>
           existingCard._id === cardId
-            ? { ...existingCard, [field]: nextValue }
+            ? { ...existingCard, [field]: value }
             : existingCard
         ),
       };
     });
+
+    queryClient.setQueryData(
+      ["collection", collectionId],
+      (oldCollection) => {
+        if (!oldCollection) return oldCollection;
+
+        const decks = oldCollection.decks.map((d) =>
+          d._id === deckId
+            ? {
+                ...d,
+                cards: (d.cards || []).map((c) =>
+                  c._id === cardId ? { ...c, [field]: value } : c
+                ),
+              }
+            : d
+        );
+
+        return {
+          ...oldCollection,
+          decks,
+          decksToRevise: rankDecksToRevise(decks),
+        };
+      }
+    );
+  };
+
+  const toggleField = async (field) => {
+    const nextValue = !card[field];
+
+    applyFieldToCaches(field, nextValue);
 
     try {
       await axios.put(`http://localhost:5001/api/cards/${cardId}`, {
@@ -245,23 +274,7 @@ function CardPage() {
         err.response?.data?.message || "Unable to update the card."
       );
 
-      queryClient.setQueryData(["card", cardId], (oldCard) => {
-        if (!oldCard) return oldCard;
-        return { ...oldCard, [field]: card[field] };
-      });
-
-      queryClient.setQueryData(["deck", deckId], (oldDeck) => {
-        if (!oldDeck) return oldDeck;
-
-        return {
-          ...oldDeck,
-          cards: (oldDeck.cards || []).map((existingCard) =>
-            existingCard._id === cardId
-              ? { ...existingCard, [field]: card[field] }
-              : existingCard
-          ),
-        };
-      });
+      applyFieldToCaches(field, card[field]);
     }
   };
 
