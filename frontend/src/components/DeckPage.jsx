@@ -38,6 +38,7 @@ function DeckPage() {
 
   const [editingCardId, setEditingCardId] = useState(null);
   const [editedCourseOutcome, setEditedCourseOutcome] = useState("");
+  const cardClickTimeoutRef = useRef(null);
 
   const {
     data: deck,
@@ -311,11 +312,24 @@ function DeckPage() {
               style={{ "--deck-colour": deckColour }}
               role="button"
               tabIndex={0}
-              onClick={() =>
-                navigate(
-                  `/collections/${collectionId}/decks/${deckId}/cards/${card._id}`
-                )
-              }
+              onClick={() => {
+                if (cardClickTimeoutRef.current) {
+                  clearTimeout(cardClickTimeoutRef.current);
+                }
+                cardClickTimeoutRef.current = setTimeout(() => {
+                  navigate(
+                    `/collections/${collectionId}/decks/${deckId}/cards/${card._id}`
+                  );
+                  cardClickTimeoutRef.current = null;
+                }, 200);
+              }}
+              onDoubleClick={() => {
+                if (cardClickTimeoutRef.current) {
+                  clearTimeout(cardClickTimeoutRef.current);
+                  cardClickTimeoutRef.current = null;
+                }
+                handleEditCard(card);
+              }}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   navigate(
@@ -332,6 +346,7 @@ function DeckPage() {
                     value={editedCourseOutcome}
                     onChange={(e) => setEditedCourseOutcome(e.target.value)}
                     onClick={(e) => e.stopPropagation()}
+                    onDoubleClick={(e) => e.stopPropagation()}
                     onKeyDown={(e) => {
                       e.stopPropagation();
 
@@ -358,7 +373,10 @@ function DeckPage() {
                   </h3>
                 )}
 
-                <div className="course-outline-card-icons">
+                <div
+                  className="course-outline-card-icons"
+                  onDoubleClick={(e) => e.stopPropagation()}
+                >
                   <button
                     type="button"
                     className="card-icon-toggle"
