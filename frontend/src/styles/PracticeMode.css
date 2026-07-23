@@ -1,0 +1,410 @@
+/* ==========================
+   DECK SELECTION / WIGGLE MODE
+========================== */
+
+@keyframes deck-wiggle {
+  0% {
+    transform: rotate(-1.2deg);
+  }
+  50% {
+    transform: rotate(1.2deg);
+  }
+  100% {
+    transform: rotate(-1.2deg);
+  }
+}
+
+.deck-card-wiggle {
+  animation: deck-wiggle 0.24s ease-in-out infinite;
+  animation-delay: var(--wiggle-delay, 0s);
+  cursor: pointer;
+  user-select: none;
+}
+
+.deck-card-wiggle:hover {
+  transform: none;
+}
+
+.deck-card-selected {
+  outline: 3px solid #6366f1;
+  outline-offset: 3px;
+  box-shadow:
+    0 12px 24px rgba(99, 102, 241, 0.18),
+    0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.deck-select-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+  z-index: 2;
+}
+
+.deck-select-badge-active {
+  border-color: #6366f1;
+  background: #6366f1;
+}
+
+.practice-mode-btn-active {
+  background: #4338ca !important;
+}
+
+.selection-hint-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+
+  background: #0f172a;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.35);
+
+  z-index: 500;
+  font-size: 0.9rem;
+}
+
+.selection-hint-count {
+  font-weight: 700;
+  background: #6366f1;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+}
+
+.selection-hint-instruction {
+  color: #cbd5e1;
+}
+
+/* ==========================
+   PRACTICE SESSION - FULLSCREEN MODAL
+========================== */
+
+.practice-overlay {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  display: flex;
+  z-index: 1000;
+}
+
+.practice-modal {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  border-radius: 0;
+  padding: 1.25rem 2rem 1.5rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.practice-topbar-badge {
+  background: #6366f1;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  margin-right: 1.5rem;
+}
+
+.practice-esc-btn {
+  position: absolute;
+  top: 1rem;
+  left: 2rem;
+
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  padding: 0.3rem 0.7rem;
+
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.practice-esc-btn:hover {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.practice-progress {
+  margin: 0 0 0.5rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.practice-icon-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.practice-icon-row .card-icon-toggle {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+}
+
+.practice-icon-row .card-icon-toggle img {
+  width: 20px;
+  height: 20px;
+}
+
+.practice-hint {
+  margin: 0;
+  color: #94a3b8;
+  font-weight: 300;
+  font-size: 0.8rem;
+}
+
+/* Flashcard */
+
+.flashcard-scene {
+  position: relative;
+  width: min(920px, 94vw);
+  height: 300px;
+  perspective: 1600px;
+}
+
+.flashcard {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+}
+
+.flashcard.is-flipped {
+  transform: rotateY(180deg);
+}
+
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+
+  border-radius: 20px;
+  border: 4px solid var(--deck-colour, #6366f1);
+  background: white;
+  color: #0f172a;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2.5rem;
+  overflow-y: auto;
+}
+
+.flashcard-front {
+  gap: 1rem;
+}
+
+.flashcard-question {
+  font-size: 1.9rem;
+  font-weight: 700;
+}
+
+.flashcard-hint-text {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.flashcard-back {
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  transform: rotateY(180deg);
+}
+
+.flashcard-content {
+  width: 100%;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.flashcard-content p {
+  margin: 0 0 12px;
+}
+
+.flashcard-content h1 {
+  margin: 16px 0 12px;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.flashcard-content h2 {
+  margin: 14px 0 10px;
+  font-size: 21px;
+  line-height: 1.3;
+}
+
+.flashcard-content ul,
+.flashcard-content ol {
+  padding-left: 28px;
+  margin: 12px 0;
+}
+
+.flashcard-content li {
+  margin-bottom: 6px;
+}
+
+.flashcard-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.flashcard-hint-popup {
+  position: absolute;
+  inset: 16px;
+
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(2px);
+  color: #0f172a;
+  border-radius: 16px;
+  padding: 1.5rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.flashcard-hint-popup h4 {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748b;
+}
+
+.flashcard-hint-popup ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.flashcard-hint-popup li {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 0.4rem;
+}
+
+.flashcard-hint-popup p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* Below-card row: edit link + hint */
+
+.practice-below-card-row {
+  width: min(920px, 94vw);
+  margin-top: 0.5rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.practice-edit-link {
+  background: none;
+  border: none;
+  padding: 0;
+
+  color: #a5b4fc;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.practice-edit-link:hover {
+  color: #c7d2fe;
+  text-decoration: underline;
+}
+
+/* Answer editor */
+
+.practice-answer-editor {
+  width: min(920px, 94vw);
+  margin-top: 0.5rem;
+
+  border-radius: 14px;
+  overflow: hidden;
+  background: white;
+  color: #0f172a;
+}
+
+.practice-answer-editor .tiptap-editor .ProseMirror {
+  min-height: 90px;
+  padding: 12px 16px;
+}
+
+.practice-primary-btn {
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
+
+  background: #6366f1;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1.75rem;
+  cursor: pointer;
+}
+
+.practice-primary-btn:hover {
+  background: #4f46e5;
+}
+
+.practice-complete {
+  position: relative;
+  margin: auto;
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+@media (max-width: 640px) {
+  .flashcard-scene {
+    height: 260px;
+  }
+}

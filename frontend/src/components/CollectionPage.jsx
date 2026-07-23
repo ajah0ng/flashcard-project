@@ -1,13 +1,17 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
+import PracticeSession from "./PracticeSession";
 import '../styles/CollectionsPage.css'
 import '../styles/Page.css'
 import '../styles/Buttons.css'
 import '../styles/Home.css'
+import '../styles/PracticeMode.css'
 import { getDeckColour } from "../utils/deckColours";
+import { shuffleArray } from "../utils/shuffle";
+import { patchCardFields } from "../utils/cardCacheSync";
 import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
 import filledStarIcon from '../../assets/filled-star.svg'
 import filledQuestionIcon from '../../assets/filled-question.svg'
@@ -42,6 +46,11 @@ function CollectionPage() {
     const [collectionTitleSize, setCollectionTitleSize] = useState(null);
     const collectionTitleRef = useRef(null);
 
+    const [isSelectingDecks, setIsSelectingDecks] = useState(false);
+    const [selectedDeckIds, setSelectedDeckIds] = useState(new Set());
+    const [practiceCards, setPracticeCards] = useState(null);
+    const dragSelectRef = useRef({ isDragging: false, mode: "select" });
+
     const {
         data: collection,
         isLoading,
@@ -63,6 +72,129 @@ function CollectionPage() {
         });
     };
 
+    const handleToggleDeckSelection = (deckId, forceMode) => {
+        setSelectedDeckIds((prev) => {
+            const next = new Set(prev);
+            const shouldSelect = forceMode ?? !next.has(deckId);
+
+            if (shouldSelect) {
+                next.add(deckId);
+            } else {
+                next.delete(deckId);
+            }
+
+            return next;
+        });
+    };
+
+    const handleDeckMouseDown = (deckId) => {
+        if (!isSelectingDecks) return;
+
+        const mode = selectedDeckIds.has(deckId) ? "deselect" : "select";
+        dragSelectRef.current = { isDragging: true, mode };
+        handleToggleDeckSelection(deckId, mode === "select");
+    };
+
+    const handleDeckMouseEnter = (deckId) => {
+        if (!isSelectingDecks) {
+            handlePrefetchDeck(deckId);
+            return;
+        }
+
+        if (dragSelectRef.current.isDragging) {
+            handleToggleDeckSelection(deckId, dragSelectRef.current.mode === "select");
+        }
+    };
+
+    const handleStartSelectingDecks = () => {
+        setIsSelectingDecks((wasSelecting) => {
+            if (wasSelecting) {
+                setSelectedDeckIds(new Set());
+                return false;
+            }
+
+            setSelectedDeckIds(new Set());
+            return true;
+        });
+    };
+
+    const handleCancelSelectingDecks = () => {
+        setIsSelectingDecks(false);
+        setSelectedDeckIds(new Set());
+    };
+
+    const handleStartPractice = async () => {
+        if (selectedDeckIds.size === 0) return;
+
+        try {
+            const decks = await Promise.all(
+                Array.from(selectedDeckIds).map((deckId) =>
+                    queryClient.fetchQuery({
+                        queryKey: ["deck", deckId],
+                        queryFn: () => fetchDeck(deckId),
+                        staleTime: 1000 * 60 * 5,
+                    })
+                )
+            );
+
+            const allCards = decks.flatMap((deck) => {
+                const deckPosition = collection.decks.findIndex((d) => d._id === deck._id);
+
+                return (deck.cards || []).map((card) => ({
+                    ...card,
+                    deckId: deck._id,
+                    deckName: deck.deckName,
+                    deckColour: getDeckColour(
+                        deck._id,
+                        deckPosition === -1 ? undefined : deckPosition
+                    ),
+                }));
+            });
+
+            setPracticeCards(shuffleArray(allCards));
+            setIsSelectingDecks(false);
+            setSelectedDeckIds(new Set());
+        } catch (error) {
+            console.error("Failed to start practice mode:", error);
+        }
+    };
+
+    const handleUpdatePracticeCard = async (cardId, deckId, updates) => {
+        patchCardFields(queryClient, { cardId, deckId, collectionId, updates });
+
+        try {
+            await axios.put(`http://localhost:5001/api/cards/${cardId}`, updates);
+        } catch (error) {
+            console.error("Failed to update card:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (!isSelectingDecks) return;
+
+        const handleKeyDown = (event) => {
+            if (event.key === "Enter") {
+                handleStartPractice();
+            }
+
+            if (event.key === "Escape") {
+                handleCancelSelectingDecks();
+            }
+        };
+
+        const handleMouseUp = () => {
+            dragSelectRef.current.isDragging = false;
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        document.addEventListener("mouseup", handleMouseUp);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSelectingDecks, selectedDeckIds]);
 
     const handleCreateDeck = async () => {
         try {
@@ -274,7 +406,13 @@ function CollectionPage() {
                     )}
 
                     <div className="exam-buttons">
-                        <button type="button">Practice Mode</button>
+                        <button
+                            type="button"
+                            className={isSelectingDecks ? "practice-mode-btn-active" : undefined}
+                            onClick={handleStartSelectingDecks}
+                        >
+                            {isSelectingDecks ? "Cancel Selection" : "Practice Mode"}
+                        </button>
                         <button type="button">Exam Mode</button>
                     </div>
                 </div>
@@ -349,14 +487,22 @@ function CollectionPage() {
                     collection.decks.map((deck, deckIndex) => (
                         <div
                         key={deck._id}
-                        className="deck-card"
+                        className={
+                            "deck-card" +
+                            (isSelectingDecks ? " deck-card-wiggle" : "") +
+                            (selectedDeckIds.has(deck._id) ? " deck-card-selected" : "")
+                        }
                         style={{
                             "--deck-colour": getDeckColour(deck._id, deckIndex),
+                            "--wiggle-delay": `${(deckIndex % 4) * 0.06}s`,
                         }}
                         role="button"
                         tabIndex={0}
-                        onMouseEnter={() => handlePrefetchDeck(deck._id)}
+                        onMouseDown={() => handleDeckMouseDown(deck._id)}
+                        onMouseEnter={() => handleDeckMouseEnter(deck._id)}
                         onClick={() => {
+                        if (isSelectingDecks) return;
+
                         if (editingDeckId !== deck._id) {
                             navigate(
                             `/collections/${collectionId}/decks/${deck._id}`
@@ -364,6 +510,8 @@ function CollectionPage() {
                         }
                         }}
                         onKeyDown={(event) => {
+                        if (isSelectingDecks) return;
+
                         if (
                             editingDeckId !== deck._id &&
                             (event.key === "Enter" || event.key === " ")
@@ -374,6 +522,18 @@ function CollectionPage() {
                         }
                         }}
                         >
+                        {isSelectingDecks && (
+                            <span
+                                className={
+                                    selectedDeckIds.has(deck._id)
+                                        ? "deck-select-badge deck-select-badge-active"
+                                        : "deck-select-badge"
+                                }
+                            >
+                                {selectedDeckIds.has(deck._id) ? "✓" : ""}
+                            </span>
+                        )}
+
                         <div className="card-header">
                             {editingDeckId === deck._id ? (
                                 <input
@@ -398,8 +558,11 @@ function CollectionPage() {
                             ) : (
                                 <h3
                                     className={!deck.deckName ? "deck-name-placeholder" : undefined}
-                                    onClick={(e) => e.stopPropagation()}
+                                    onClick={(e) => {
+                                        if (!isSelectingDecks) e.stopPropagation();
+                                    }}
                                     onDoubleClick={(e) => {
+                                        if (isSelectingDecks) return;
                                         e.stopPropagation();
                                         handleEditDeck(deck);
                                     }}
@@ -408,35 +571,37 @@ function CollectionPage() {
                                 </h3>
                             )}
 
-                            <div className="menu-container">
-                                <button
-                                    className="icon-button"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setOpenDeckMenuId(
-                                            openDeckMenuId === deck._id ? null : deck._id
-                                        );
-                                    }}
-                                >
-                                    <img src={threeDotsIcon} alt="Menu" />
-                                </button>
-
-                                {openDeckMenuId === deck._id && (
-                                    <div
-                                        className="menu"
-                                        onClick={(e) => e.stopPropagation()}
+                            {!isSelectingDecks && (
+                                <div className="menu-container">
+                                    <button
+                                        className="icon-button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setOpenDeckMenuId(
+                                                openDeckMenuId === deck._id ? null : deck._id
+                                            );
+                                        }}
                                     >
-                                        <button
-                                            onClick={() => {
-                                                setDeleteDeckId(deck._id);
-                                                setOpenDeckMenuId(null);
-                                            }}
+                                        <img src={threeDotsIcon} alt="Menu" />
+                                    </button>
+
+                                    {openDeckMenuId === deck._id && (
+                                        <div
+                                            className="menu"
+                                            onClick={(e) => e.stopPropagation()}
                                         >
-                                            Delete
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    setDeleteDeckId(deck._id);
+                                                    setOpenDeckMenuId(null);
+                                                }}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         <p>{deck.cards?.length || 0} cards</p>
                         </div>
@@ -463,6 +628,26 @@ function CollectionPage() {
                         ?.deckName || "Untitled Lecture"
                 }
             />
+
+            {isSelectingDecks && (
+                <div className="selection-hint-bar">
+                    <span className="selection-hint-count">
+                        {selectedDeckIds.size} deck{selectedDeckIds.size === 1 ? "" : "s"} selected
+                    </span>
+                    <span className="selection-hint-instruction">
+                        Click or drag across decks to select · Press Enter to start · Esc to cancel
+                    </span>
+                </div>
+            )}
+
+            {practiceCards && (
+                <PracticeSession
+                    cards={practiceCards}
+                    collectionId={collectionId}
+                    onClose={() => setPracticeCards(null)}
+                    onUpdateCard={handleUpdatePracticeCard}
+                />
+            )}
         </div>
     );
 }
