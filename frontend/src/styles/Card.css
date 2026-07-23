@@ -195,6 +195,18 @@
     border-color 0.2s ease;
 }
 
+.course-outline-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.08),
+    0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+/* card does not hover when an icon inside it is hovered */
+.course-outline-card:has(.icon-button:hover) {
+  transform: translateY(0);
+}
+
 .course-outline-card-header {
   display: flex;
   align-items: center;
@@ -204,6 +216,26 @@
 
 .course-outline-card-header h3 {
   margin: 0;
+}
+
+.course-outcome-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid #cbd5e1;
+  outline: none;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.course-outcome-input:focus {
+  border-bottom-color: #4f46e5;
 }
 
 .course-outcome-placeholder {

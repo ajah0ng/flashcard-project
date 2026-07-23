@@ -36,6 +36,9 @@ function DeckPage() {
   const [openCardMenuId, setOpenCardMenuId] = useState(null);
   const [deleteCardId, setDeleteCardId] = useState(null);
 
+  const [editingCardId, setEditingCardId] = useState(null);
+  const [editedCourseOutcome, setEditedCourseOutcome] = useState("");
+
   const {
     data: deck,
     isLoading,
@@ -122,6 +125,50 @@ function DeckPage() {
       setDeleteCardId(null);
     } catch (err) {
       console.error("Failed to delete card:", err);
+    }
+  };
+
+  const handleEditCard = (card) => {
+    setEditingCardId(card._id);
+    setEditedCourseOutcome(card.courseOutcome || "");
+  };
+
+  const handleSaveCourseOutcome = async (cardId) => {
+    const trimmedOutcome = editedCourseOutcome.trim();
+
+    if (!trimmedOutcome) {
+      setEditingCardId(null);
+      return;
+    }
+
+    try {
+      const response = await axios.put(
+        `http://localhost:5001/api/cards/${cardId}`,
+        { courseOutcome: trimmedOutcome }
+      );
+
+      queryClient.setQueryData(["deck", deckId], (oldDeck) => {
+        if (!oldDeck) return oldDeck;
+
+        return {
+          ...oldDeck,
+          cards: (oldDeck.cards || []).map((c) =>
+            c._id === cardId
+              ? { ...c, courseOutcome: response.data.courseOutcome }
+              : c
+          ),
+        };
+      });
+
+      queryClient.setQueryData(["card", cardId], (oldCard) => {
+        if (!oldCard) return oldCard;
+
+        return { ...oldCard, courseOutcome: response.data.courseOutcome };
+      });
+
+      setEditingCardId(null);
+    } catch (error) {
+      console.error("Failed to edit card:", error);
     }
   };
 
@@ -278,9 +325,38 @@ function DeckPage() {
               }}
             >
               <div className="course-outline-card-header">
-                <h3 className={!card.courseOutcome ? "course-outcome-placeholder" : undefined}>
-                  {card.courseOutcome || "Untitled Course Outcome"}
-                </h3>
+                {editingCardId === card._id ? (
+                  <input
+                    className="course-outcome-input"
+                    autoFocus
+                    value={editedCourseOutcome}
+                    onChange={(e) => setEditedCourseOutcome(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+
+                      if (e.key === "Enter") {
+                        handleSaveCourseOutcome(card._id);
+                      }
+
+                      if (e.key === "Escape") {
+                        setEditingCardId(null);
+                      }
+                    }}
+                    onBlur={() => handleSaveCourseOutcome(card._id)}
+                  />
+                ) : (
+                  <h3
+                    className={!card.courseOutcome ? "course-outcome-placeholder" : undefined}
+                    onClick={(e) => e.stopPropagation()}
+                    onDoubleClick={(e) => {
+                      e.stopPropagation();
+                      handleEditCard(card);
+                    }}
+                  >
+                    {card.courseOutcome || "Untitled Course Outcome"}
+                  </h3>
+                )}
 
                 <div className="course-outline-card-icons">
                   <button
