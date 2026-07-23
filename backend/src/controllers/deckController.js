@@ -62,6 +62,37 @@ export async function updateDeckName(req, res) {
     }
 }
 
+// DELETE deck
+export async function deleteDeck(req, res) {
+    try {
+        const { id } = req.params;
+
+        const deck = await Deck.findByIdAndDelete(id);
+
+        if (!deck) {
+            return res.status(404).json({
+                message: "Deck not found"
+            });
+        }
+
+        await Card.deleteMany({ _id: { $in: deck.cards } });
+
+        await Collection.updateMany(
+            { decks: id },
+            { $pull: { decks: id } }
+        );
+
+        res.status(200).json({ message: "Deck deleted successfully" });
+
+    } catch (error) {
+        console.error("Error in deleteDeck", error);
+
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+}
+
 export const createDeck = async (req, res) => {
   try {
     const { collectionId, deckName, cards } = req.body;
