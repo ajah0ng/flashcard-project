@@ -45,6 +45,27 @@
   margin: 0;
 }
 
+.collection-name-input {
+  font-family: inherit;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 750;
+  color: #0f172a;
+  letter-spacing: -0.04em;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-bottom: 2px solid #cbd5e1;
+  background: transparent;
+  box-sizing: content-box;
+  max-width: 100%;
+}
+
+.collection-name-input:focus {
+  outline: none;
+  border-bottom-color: #4f46e5;
+}
+
 /* ==========================
    SUMMARY SECTION
 ========================== */

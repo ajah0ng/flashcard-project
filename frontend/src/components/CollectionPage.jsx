@@ -33,6 +33,9 @@ function CollectionPage() {
     const [editingDeckId, setEditingDeckId] = useState(null);
     const [editedDeckName, setEditedDeckName] = useState("");
 
+    const [isEditingCollectionName, setIsEditingCollectionName] = useState(false);
+    const [editedCollectionName, setEditedCollectionName] = useState("");
+
     const {
         data: collection,
         isLoading,
@@ -128,6 +131,51 @@ function CollectionPage() {
         }
     };
 
+    const handleEditCollectionName = () => {
+        setEditedCollectionName(collection.collectionName);
+        setIsEditingCollectionName(true);
+    };
+
+    const handleSaveCollectionName = async () => {
+        const trimmedName = editedCollectionName.trim();
+
+        if (!trimmedName) {
+            setIsEditingCollectionName(false);
+            return;
+        }
+
+        try {
+            const response = await axios.put(
+                `http://localhost:5001/api/collections/${collectionId}`,
+                { collectionName: trimmedName }
+            );
+
+            queryClient.setQueryData(
+                ["collection", collectionId],
+                (oldCollection) => {
+                    if (!oldCollection) return oldCollection;
+
+                    return {
+                        ...oldCollection,
+                        collectionName: response.data.collectionName,
+                    };
+                }
+            );
+
+            queryClient.setQueryData(["collections"], (old = []) =>
+                old.map((c) =>
+                    c._id === collectionId
+                        ? { ...c, collectionName: response.data.collectionName }
+                        : c
+                )
+            );
+
+            setIsEditingCollectionName(false);
+        } catch (error) {
+            console.error("Failed to edit collection:", error);
+        }
+    };
+
 
     if (isLoading) {
         return <h2>Loading...</h2>;
@@ -149,7 +197,29 @@ function CollectionPage() {
                 </button>
 
                 <div className="title-row">
-                    <h1>{collection.collectionName}</h1>
+                    {isEditingCollectionName ? (
+                        <input
+                            className="collection-name-input"
+                            style={{ width: `${Math.max(editedCollectionName.length, 1)}ch` }}
+                            autoFocus
+                            value={editedCollectionName}
+                            onChange={(e) => setEditedCollectionName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleSaveCollectionName();
+                                }
+
+                                if (e.key === "Escape") {
+                                    setIsEditingCollectionName(false);
+                                }
+                            }}
+                            onBlur={handleSaveCollectionName}
+                        />
+                    ) : (
+                        <h1 onDoubleClick={handleEditCollectionName}>
+                            {collection.collectionName}
+                        </h1>
+                    )}
 
                     <div className="exam-buttons">
                         <button type="button">Practice Mode</button>
