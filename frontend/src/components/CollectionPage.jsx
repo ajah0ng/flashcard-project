@@ -2,10 +2,13 @@ import { useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
 import '../styles/CollectionsPage.css'
 import '../styles/Page.css'
 import '../styles/Buttons.css'
+import '../styles/Home.css'
 import { getDeckColour } from "../utils/deckColours";
+import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
 
 const fetchCollection = async (collectionId) => {
     const response = await axios.get(
@@ -28,6 +31,9 @@ function CollectionPage() {
 
     const [editingDeckId, setEditingDeckId] = useState(null);
     const [editedDeckName, setEditedDeckName] = useState("");
+
+    const [openDeckMenuId, setOpenDeckMenuId] = useState(null);
+    const [deleteDeckId, setDeleteDeckId] = useState(null);
 
     const [isEditingCollectionName, setIsEditingCollectionName] = useState(false);
     const [editedCollectionName, setEditedCollectionName] = useState("");
@@ -132,6 +138,30 @@ function CollectionPage() {
             setEditingDeckId(null);
         } catch (error) {
             console.error("Failed to edit deck:", error);
+        }
+    };
+
+    const handleDeleteDeck = async (deckId) => {
+        try {
+            await axios.delete(`http://localhost:5001/api/decks/${deckId}`);
+
+            queryClient.setQueryData(
+                ["collection", collectionId],
+                (oldCollection) => {
+                    if (!oldCollection) return oldCollection;
+
+                    return {
+                        ...oldCollection,
+                        decks: oldCollection.decks.filter(
+                            (deck) => deck._id !== deckId
+                        ),
+                    };
+                }
+            );
+
+            setDeleteDeckId(null);
+        } catch (error) {
+            console.error("Failed to delete deck:", error);
         }
     };
 
@@ -292,38 +322,70 @@ function CollectionPage() {
                         }
                         }}
                         >
-                        {editingDeckId === deck._id ? (
-                            <input
-                                className="deck-name-input"
-                                autoFocus
-                                value={editedDeckName}
-                                onChange={(e) => setEditedDeckName(e.target.value)}
-                                onClick={(e) => e.stopPropagation()}
-                                onKeyDown={(e) => {
-                                    e.stopPropagation();
+                        <div className="card-header">
+                            {editingDeckId === deck._id ? (
+                                <input
+                                    className="deck-name-input"
+                                    autoFocus
+                                    value={editedDeckName}
+                                    onChange={(e) => setEditedDeckName(e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onKeyDown={(e) => {
+                                        e.stopPropagation();
 
-                                    if (e.key === "Enter") {
-                                        handleSaveDeckName(deck._id);
-                                    }
+                                        if (e.key === "Enter") {
+                                            handleSaveDeckName(deck._id);
+                                        }
 
-                                    if (e.key === "Escape") {
-                                        setEditingDeckId(null);
-                                    }
-                                }}
-                                onBlur={() => handleSaveDeckName(deck._id)}
-                            />
-                        ) : (
-                            <h3
-                                className={!deck.deckName ? "deck-name-placeholder" : undefined}
-                                onClick={(e) => e.stopPropagation()}
-                                onDoubleClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditDeck(deck);
-                                }}
-                            >
-                                {deck.deckName || "Untitled Lecture"}
-                            </h3>
-                        )}
+                                        if (e.key === "Escape") {
+                                            setEditingDeckId(null);
+                                        }
+                                    }}
+                                    onBlur={() => handleSaveDeckName(deck._id)}
+                                />
+                            ) : (
+                                <h3
+                                    className={!deck.deckName ? "deck-name-placeholder" : undefined}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onDoubleClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEditDeck(deck);
+                                    }}
+                                >
+                                    {deck.deckName || "Untitled Lecture"}
+                                </h3>
+                            )}
+
+                            <div className="menu-container">
+                                <button
+                                    className="icon-button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenDeckMenuId(
+                                            openDeckMenuId === deck._id ? null : deck._id
+                                        );
+                                    }}
+                                >
+                                    <img src={threeDotsIcon} alt="Menu" />
+                                </button>
+
+                                {openDeckMenuId === deck._id && (
+                                    <div
+                                        className="menu"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                setDeleteDeckId(deck._id);
+                                                setOpenDeckMenuId(null);
+                                            }}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                         <p>{deck.cards?.length || 0} cards</p>
                         </div>
                     ))
@@ -337,6 +399,18 @@ function CollectionPage() {
                     Add Deck +
                 </button>
             </div>
+
+            <DeleteConfirmationModal
+                isOpen={!!deleteDeckId}
+                onClose={() => setDeleteDeckId(null)}
+                onConfirm={() => handleDeleteDeck(deleteDeckId)}
+                title="Delete Deck"
+                itemLabel="deck"
+                itemName={
+                    collection.decks.find((deck) => deck._id === deleteDeckId)
+                        ?.deckName || "Untitled Lecture"
+                }
+            />
         </div>
     );
 }

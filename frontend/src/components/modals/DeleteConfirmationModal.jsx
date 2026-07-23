@@ -1,17 +1,24 @@
 import '../../styles/Modal.css'
 
-function DeleteConfirmationModal({ isOpen, onClose, onConfirm, itemName }) {
+function DeleteConfirmationModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  itemName,
+  title = "Delete Collection",
+  itemLabel = "collection",
+}) {
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-        <p>Delete Collection</p>
+        <p>{title}</p>
         <button className="close-btn" onClick={onClose}>×</button>
 
         <span>
           Are you sure you want to delete{" "}
-          {itemName ? <strong>{itemName}</strong> : "this collection"}? This
+          {itemName ? <strong>{itemName}</strong> : `this ${itemLabel}`}? This
           action cannot be undone.
         </span>
 

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
 import "../styles/CollectionsPage.css";
 import "../styles/Home.css";
 import "../styles/Card.css";
@@ -10,6 +11,7 @@ import filledStarIcon from '../../assets/filled-star.svg'
 import unfilledStarIcon from '../../assets/unfilled-star.svg'
 import filledQuestionIcon from '../../assets/filled-question.svg'
 import unfilledQuestionIcon from '../../assets/unfilled-question.svg'
+import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
 import { getDeckColour } from "../utils/deckColours";
 
 const fetchDeck = async (deckId) => {
@@ -30,6 +32,9 @@ function DeckPage() {
   const [editedDeckName, setEditedDeckName] = useState("");
   const [deckTitleSize, setDeckTitleSize] = useState(null);
   const deckTitleRef = useRef(null);
+
+  const [openCardMenuId, setOpenCardMenuId] = useState(null);
+  const [deleteCardId, setDeleteCardId] = useState(null);
 
   const {
     data: deck,
@@ -98,6 +103,25 @@ function DeckPage() {
           ),
         };
       });
+    }
+  };
+
+  const handleDeleteCard = async (cardId) => {
+    try {
+      await axios.delete(`http://localhost:5001/api/cards/${cardId}`);
+
+      queryClient.setQueryData(["deck", deckId], (oldDeck) => {
+        if (!oldDeck) return oldDeck;
+
+        return {
+          ...oldDeck,
+          cards: (oldDeck.cards || []).filter((c) => c._id !== cardId),
+        };
+      });
+
+      setDeleteCardId(null);
+    } catch (err) {
+      console.error("Failed to delete card:", err);
     }
   };
 
