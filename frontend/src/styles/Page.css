@@ -118,3 +118,12 @@
 .summary-card li:last-child {
   margin-bottom: 0;
 }
+
+.summary-list-item {
+  cursor: pointer;
+}
+
+.summary-list-item:hover {
+  color: #6366f1;
+  text-decoration: underline;
+}
