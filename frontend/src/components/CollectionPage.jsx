@@ -9,6 +9,8 @@ import '../styles/Buttons.css'
 import '../styles/Home.css'
 import { getDeckColour } from "../utils/deckColours";
 import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
+import filledStarIcon from '../../assets/filled-star.svg'
+import filledQuestionIcon from '../../assets/filled-question.svg'
 
 const fetchCollection = async (collectionId) => {
     const response = await axios.get(
@@ -287,19 +289,51 @@ function CollectionPage() {
                     </p>
 
                     {collection.decksToRevise && collection.decksToRevise.length > 0 ? (
-                        <ul>
-                            {collection.decksToRevise.slice(0, 3).map((deck) => (
-                                <li
-                                    key={deck._id}
-                                    className="summary-list-item"
-                                    onClick={() =>
-                                        navigate(`/collections/${collectionId}/decks/${deck._id}`)
-                                    }
-                                >
-                                    {deck.deckName || "Untitled Lecture"}
-                                </li>
-                            ))}
-                        </ul>
+                        <ol className="revise-rank-list">
+                            {collection.decksToRevise.slice(0, 3).map((deck, rankIndex) => {
+                                const deckPosition = collection.decks.findIndex(
+                                    (d) => d._id === deck._id
+                                );
+
+                                return (
+                                    <li
+                                        key={deck._id}
+                                        className="revise-rank-item"
+                                        onClick={() =>
+                                            navigate(`/collections/${collectionId}/decks/${deck._id}`)
+                                        }
+                                    >
+                                        <span className="revise-rank-number">{rankIndex + 1}</span>
+
+                                        <span
+                                            className="revise-deck-dot"
+                                            style={{
+                                                "--deck-colour": getDeckColour(
+                                                    deck._id,
+                                                    deckPosition === -1 ? undefined : deckPosition
+                                                ),
+                                            }}
+                                        />
+
+                                        <span className="revise-deck-name">
+                                            {deck.deckName || "Untitled Lecture"}
+                                        </span>
+
+                                        <span className="revise-badges">
+                                            <span className="revise-badge">
+                                                <img src={filledStarIcon} alt="" />
+                                                {deck.favouriteCount}
+                                            </span>
+
+                                            <span className="revise-badge">
+                                                <img src={filledQuestionIcon} alt="" />
+                                                {deck.flaggedCount}
+                                            </span>
+                                        </span>
+                                    </li>
+                                );
+                            })}
+                        </ol>
                     ) : (
                         <p className="summary-subtitle">
                             No decks flagged for revision yet.

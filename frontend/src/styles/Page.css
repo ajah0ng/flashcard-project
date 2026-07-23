@@ -104,26 +104,78 @@
   font-size: 0.92rem;
 }
 
-.summary-card ul {
+.revise-rank-list {
   margin: 0;
-  padding-left: 1.2rem;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.summary-card li {
-  margin-bottom: 0.7rem;
-  color: #334155;
-  font-weight: 500;
-}
-
-.summary-card li:last-child {
-  margin-bottom: 0;
-}
-
-.summary-list-item {
+.revise-rank-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.6rem;
+  border-radius: 10px;
   cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.summary-list-item:hover {
+.revise-rank-item:hover {
+  background: #f5f5ff;
+}
+
+.revise-rank-number {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #eef2ff;
   color: #6366f1;
-  text-decoration: underline;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.revise-deck-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--deck-colour, #6366f1);
+}
+
+.revise-deck-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #334155;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.revise-badges {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.revise-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.revise-badge img {
+  width: 14px;
+  height: 14px;
 }
