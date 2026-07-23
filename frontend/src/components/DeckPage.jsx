@@ -13,6 +13,7 @@ import filledQuestionIcon from '../../assets/filled-question.svg'
 import unfilledQuestionIcon from '../../assets/unfilled-question.svg'
 import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
 import { getDeckColour } from "../utils/deckColours";
+import { rankDecksToRevise } from "../utils/rankDecks";
 
 const fetchDeck = async (deckId) => {
   const response = await axios.get(
@@ -76,19 +77,52 @@ function DeckPage() {
     }
   };
 
-  const toggleCardField = async (card, field) => {
-    const nextValue = !card[field];
-
+  const applyCardFieldToCaches = (cardId, field, value) => {
     queryClient.setQueryData(["deck", deckId], (oldDeck) => {
       if (!oldDeck) return oldDeck;
 
       return {
         ...oldDeck,
         cards: (oldDeck.cards || []).map((c) =>
-          c._id === card._id ? { ...c, [field]: nextValue } : c
+          c._id === cardId ? { ...c, [field]: value } : c
         ),
       };
     });
+
+    queryClient.setQueryData(["card", cardId], (oldCard) => {
+      if (!oldCard) return oldCard;
+      return { ...oldCard, [field]: value };
+    });
+
+    queryClient.setQueryData(
+      ["collection", collectionId],
+      (oldCollection) => {
+        if (!oldCollection) return oldCollection;
+
+        const decks = oldCollection.decks.map((d) =>
+          d._id === deckId
+            ? {
+                ...d,
+                cards: (d.cards || []).map((c) =>
+                  c._id === cardId ? { ...c, [field]: value } : c
+                ),
+              }
+            : d
+        );
+
+        return {
+          ...oldCollection,
+          decks,
+          decksToRevise: rankDecksToRevise(decks),
+        };
+      }
+    );
+  };
+
+  const toggleCardField = async (card, field) => {
+    const nextValue = !card[field];
+
+    applyCardFieldToCaches(card._id, field, nextValue);
 
     try {
       await axios.put(`http://localhost:5001/api/cards/${card._id}`, {
@@ -97,16 +131,7 @@ function DeckPage() {
     } catch (err) {
       console.error(`Failed to update ${field}:`, err);
 
-      queryClient.setQueryData(["deck", deckId], (oldDeck) => {
-        if (!oldDeck) return oldDeck;
-
-        return {
-          ...oldDeck,
-          cards: (oldDeck.cards || []).map((c) =>
-            c._id === card._id ? { ...c, [field]: card[field] } : c
-          ),
-        };
-      });
+      applyCardFieldToCaches(card._id, field, card[field]);
     }
   };
 
