@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import CreateCardModal from "./modals/CreateCardModal";
 import axios from "axios";
 import "../styles/CollectionsPage.css";
 import "../styles/Home.css";
@@ -26,9 +25,6 @@ function DeckPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const deckColour = getDeckColour(deckId);
-
-  const [showCreateCardModal, setShowCreateCardModal] =
-    useState(false);
 
   const [isEditingDeckName, setIsEditingDeckName] = useState(false);
   const [editedDeckName, setEditedDeckName] = useState("");
@@ -57,8 +53,18 @@ function DeckPage() {
         cards: [...(oldDeck.cards || []), newCard],
       };
     });
+  };
 
-    setShowCreateCardModal(false);
+  const handleCreateCard = async () => {
+    try {
+      const response = await axios.post("http://localhost:5001/api/cards", {
+        deckId,
+      });
+
+      addCard(response.data);
+    } catch (err) {
+      console.error("Failed to create card:", err);
+    }
   };
 
   const toggleCardField = async (card, field) => {
@@ -244,7 +250,9 @@ function DeckPage() {
               }}
             >
               <div className="course-outline-card-header">
-                <h3>{card.courseOutcome}</h3>
+                <h3 className={!card.courseOutcome ? "course-outcome-placeholder" : undefined}>
+                  {card.courseOutcome || "Untitled Course Outcome"}
+                </h3>
 
                 <div className="course-outline-card-icons">
                   <button
@@ -305,18 +313,11 @@ function DeckPage() {
         <button
           type="button"
           className="create-btn"
-          onClick={() => setShowCreateCardModal(true)}
+          onClick={handleCreateCard}
         >
           Create Card +
         </button>
       </div>
-
-      <CreateCardModal
-        isOpen={showCreateCardModal}
-        onClose={() => setShowCreateCardModal(false)}
-        deckId={deckId}
-        onCardCreated={addCard}
-      />
     </div>
   );
 }

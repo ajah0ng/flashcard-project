@@ -365,11 +365,15 @@ function CardPage() {
                 />
               ) : (
                 <h1
-                  className="card-title-display"
+                  className={
+                    card.courseOutcome
+                      ? "card-title-display"
+                      : "card-title-display course-outcome-placeholder"
+                  }
                   title="Double-click to edit"
                   onDoubleClick={() => setIsEditingTitle(true)}
                 >
-                  {card.courseOutcome}
+                  {card.courseOutcome || "Untitled Course Outcome"}
                 </h1>
               )}
 
