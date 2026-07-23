@@ -212,8 +212,12 @@ function DeckPage() {
                       onBlur={handleSaveDeckName}
                   />
               ) : (
-                  <h1 ref={deckTitleRef} onDoubleClick={handleEditDeckName}>
-                      {deck.deckName}
+                  <h1
+                      ref={deckTitleRef}
+                      className={!deck.deckName ? "deck-name-placeholder" : undefined}
+                      onDoubleClick={handleEditDeckName}
+                  >
+                      {deck.deckName || "Untitled Lecture"}
                   </h1>
               )}
 

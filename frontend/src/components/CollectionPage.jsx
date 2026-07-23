@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import CreateDeckModal from "./modals/CreateDeckModal";
 import axios from "axios";
 import '../styles/CollectionsPage.css'
 import '../styles/Page.css'
@@ -26,9 +25,6 @@ function CollectionPage() {
     const { collectionId } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-
-    const [showAddDeckModal, setShowAddDeckModal] =
-        useState(false);
 
     const [editingDeckId, setEditingDeckId] = useState(null);
     const [editedDeckName, setEditedDeckName] = useState("");
@@ -60,30 +56,36 @@ function CollectionPage() {
     };
 
 
-    const addDeck = (newDeck) => {
-        queryClient.setQueryData(
-            ["collections"],
-            (old = []) => [...old, newDeck]
-        );
-    };
+    const handleCreateDeck = async () => {
+        try {
+            const response = await axios.post(
+                "http://localhost:5001/api/decks",
+                {
+                    collectionId,
+                    deckName: "",
+                    cards: [],
+                }
+            );
 
-    const handleDeckCreated = (newDeck) => {
-        queryClient.setQueryData(
-            ["collection", collectionId],
-            (oldCollection) => {
-                if (!oldCollection) return oldCollection;
+            const newDeck = response.data;
 
-                return {
-                    ...oldCollection,
-                    decks: [
-                        ...oldCollection.decks,
-                        newDeck,
-                    ],
-                };
-            }
-        );
+            queryClient.setQueryData(
+                ["collection", collectionId],
+                (oldCollection) => {
+                    if (!oldCollection) return oldCollection;
 
-        setShowAddDeckModal(false);
+                    return {
+                        ...oldCollection,
+                        decks: [
+                            ...oldCollection.decks,
+                            newDeck,
+                        ],
+                    };
+                }
+            );
+        } catch (error) {
+            console.error("Failed to create deck:", error);
+        }
     };
 
     const handleEditDeck = (deck) => {
@@ -312,13 +314,14 @@ function CollectionPage() {
                             />
                         ) : (
                             <h3
+                                className={!deck.deckName ? "deck-name-placeholder" : undefined}
                                 onClick={(e) => e.stopPropagation()}
                                 onDoubleClick={(e) => {
                                     e.stopPropagation();
                                     handleEditDeck(deck);
                                 }}
                             >
-                                {deck.deckName}
+                                {deck.deckName || "Untitled Lecture"}
                             </h3>
                         )}
                         <p>{deck.cards?.length || 0} cards</p>
@@ -329,21 +332,11 @@ function CollectionPage() {
 
                 <button
                     className="create-btn"
-                    onClick={() =>
-                        setShowAddDeckModal(true)
-                    }
+                    onClick={handleCreateDeck}
                 >
                     Add Deck +
                 </button>
             </div>
-
-            <CreateDeckModal
-                isOpen={showAddDeckModal}
-                onClose={() =>
-                    setShowAddDeckModal(false)
-                }
-                collectionId={collectionId}
-            />
         </div>
     );
 }

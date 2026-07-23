@@ -43,6 +43,12 @@
   color: #111827;
 }
 
+.deck-card h3.deck-name-placeholder,
+.title-row h1.deck-name-placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
 .deck-name-input {
   display: block;
   width: 100%;
