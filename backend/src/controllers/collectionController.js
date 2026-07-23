@@ -43,6 +43,8 @@ function rankDecksToRevise(decks) {
         .map((deck) => {
             const cards = deck.cards || [];
             const bothCount = cards.filter((c) => c.favourite && c.flagged).length;
+            const favouriteCount = cards.filter((c) => c.favourite).length;
+            const flaggedCount = cards.filter((c) => c.flagged).length;
             const deckScore = cards.reduce((sum, c) => sum + scoreCard(c), 0);
 
             return {
@@ -50,6 +52,8 @@ function rankDecksToRevise(decks) {
                 deckName: deck.deckName,
                 deckScore,
                 bothCount,
+                favouriteCount,
+                flaggedCount,
             };
         })
         .filter((deck) => deck.deckScore > 0)
