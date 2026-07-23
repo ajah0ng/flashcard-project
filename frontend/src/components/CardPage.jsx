@@ -3,14 +3,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Tiptap from "./Tiptap";
+import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
 import "../styles/Card.css";
 import "../styles/CollectionsPage.css";
+import "../styles/Home.css";
 import '../styles/Page.css'
 import { getDeckColour } from "../utils/deckColours";
 import filledStarIcon from '../../assets/filled-star.svg'
 import unfilledStarIcon from '../../assets/unfilled-star.svg'
 import filledQuestionIcon from '../../assets/filled-question.svg'
 import unfilledQuestionIcon from '../../assets/unfilled-question.svg'
+import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
 
 const SWIPE_THRESHOLD = 60;
 const SWIPE_GESTURE_IDLE_MS = 200;
@@ -43,6 +46,9 @@ function CardPage() {
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [slideDirection, setSlideDirection] = useState(null);
+
+  const [isCardMenuOpen, setIsCardMenuOpen] = useState(false);
+  const [showDeleteCardModal, setShowDeleteCardModal] = useState(false);
 
   const [saveError, setSaveError] = useState("");
 
@@ -259,6 +265,32 @@ function CardPage() {
     }
   };
 
+  const handleDeleteCard = async () => {
+    try {
+      await axios.delete(`http://localhost:5001/api/cards/${cardId}`);
+
+      queryClient.setQueryData(["deck", deckId], (oldDeck) => {
+        if (!oldDeck) return oldDeck;
+
+        return {
+          ...oldDeck,
+          cards: (oldDeck.cards || []).filter(
+            (existingCard) => existingCard._id !== cardId
+          ),
+        };
+      });
+
+      setShowDeleteCardModal(false);
+      navigate(`/collections/${collectionId}/decks/${deckId}`);
+    } catch (err) {
+      console.error("Failed to delete card:", err);
+
+      setSaveError(
+        err.response?.data?.message || "Unable to delete the card."
+      );
+    }
+  };
+
   const commitTitle = () => {
     setIsEditingTitle(false);
 
@@ -421,6 +453,30 @@ function CardPage() {
                     alt=""
                   />
                 </button>
+
+                <div className="menu-container">
+                  <button
+                    type="button"
+                    className="icon-button"
+                    onClick={() => setIsCardMenuOpen((open) => !open)}
+                  >
+                    <img src={threeDotsIcon} alt="Menu" />
+                  </button>
+
+                  {isCardMenuOpen && (
+                    <div className="menu">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCardMenuOpen(false);
+                          setShowDeleteCardModal(true);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -485,6 +541,15 @@ function CardPage() {
           </button>
         </div>
       </div>
+
+      <DeleteConfirmationModal
+        isOpen={showDeleteCardModal}
+        onClose={() => setShowDeleteCardModal(false)}
+        onConfirm={handleDeleteCard}
+        title="Delete Card"
+        itemLabel="card"
+        itemName={card.courseOutcome || "Untitled Course Outcome"}
+      />
     </main>
   );
 }

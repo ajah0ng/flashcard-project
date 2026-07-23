@@ -332,6 +332,38 @@ function DeckPage() {
                       alt=""
                     />
                   </button>
+
+                  <div className="menu-container">
+                    <button
+                      type="button"
+                      className="icon-button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setOpenCardMenuId(
+                          openCardMenuId === card._id ? null : card._id
+                        );
+                      }}
+                    >
+                      <img src={threeDotsIcon} alt="Menu" />
+                    </button>
+
+                    {openCardMenuId === card._id && (
+                      <div
+                        className="menu"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDeleteCardId(card._id);
+                            setOpenCardMenuId(null);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -346,6 +378,18 @@ function DeckPage() {
           Create Card +
         </button>
       </div>
+
+      <DeleteConfirmationModal
+        isOpen={!!deleteCardId}
+        onClose={() => setDeleteCardId(null)}
+        onConfirm={() => handleDeleteCard(deleteCardId)}
+        title="Delete Card"
+        itemLabel="card"
+        itemName={
+          deck.cards.find((card) => card._id === deleteCardId)
+            ?.courseOutcome || "Untitled Course Outcome"
+        }
+      />
     </div>
   );
 }
