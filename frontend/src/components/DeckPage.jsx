@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import CreateCardModal from "./modals/CreateCardModal";
@@ -29,6 +29,11 @@ function DeckPage() {
 
   const [showCreateCardModal, setShowCreateCardModal] =
     useState(false);
+
+  const [isEditingDeckName, setIsEditingDeckName] = useState(false);
+  const [editedDeckName, setEditedDeckName] = useState("");
+  const [deckTitleSize, setDeckTitleSize] = useState(null);
+  const deckTitleRef = useRef(null);
 
   const {
     data: deck,
@@ -90,6 +95,58 @@ function DeckPage() {
     }
   };
 
+  const handleEditDeckName = () => {
+    if (deckTitleRef.current) {
+      const rect = deckTitleRef.current.getBoundingClientRect();
+      setDeckTitleSize({ width: rect.width, height: rect.height });
+    }
+
+    setEditedDeckName(deck.deckName);
+    setIsEditingDeckName(true);
+  };
+
+  const handleSaveDeckName = async () => {
+    const trimmedName = editedDeckName.trim();
+
+    if (!trimmedName) {
+      setIsEditingDeckName(false);
+      return;
+    }
+
+    try {
+      const response = await axios.put(
+        `http://localhost:5001/api/decks/${deckId}`,
+        { updatedDeckName: trimmedName }
+      );
+
+      queryClient.setQueryData(["deck", deckId], (oldDeck) => {
+        if (!oldDeck) return oldDeck;
+
+        return { ...oldDeck, deckName: response.data.deckName };
+      });
+
+      queryClient.setQueryData(
+        ["collection", collectionId],
+        (oldCollection) => {
+          if (!oldCollection) return oldCollection;
+
+          return {
+            ...oldCollection,
+            decks: oldCollection.decks.map((d) =>
+              d._id === deckId
+                ? { ...d, deckName: response.data.deckName }
+                : d
+            ),
+          };
+        }
+      );
+
+      setIsEditingDeckName(false);
+    } catch (error) {
+      console.error("Failed to edit deck:", error);
+    }
+  };
+
   if (isLoading) {
     return <h2>Loading...</h2>;
   }
@@ -123,7 +180,36 @@ function DeckPage() {
           </button>
 
           <div className="title-row">
-              <h1>{deck.deckName}</h1>
+              {isEditingDeckName ? (
+                  <input
+                      className="collection-name-input"
+                      style={
+                          deckTitleSize
+                              ? {
+                                    width: deckTitleSize.width,
+                                    height: deckTitleSize.height,
+                                }
+                              : undefined
+                      }
+                      autoFocus
+                      value={editedDeckName}
+                      onChange={(e) => setEditedDeckName(e.target.value)}
+                      onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                              handleSaveDeckName();
+                          }
+
+                          if (e.key === "Escape") {
+                              setIsEditingDeckName(false);
+                          }
+                      }}
+                      onBlur={handleSaveDeckName}
+                  />
+              ) : (
+                  <h1 ref={deckTitleRef} onDoubleClick={handleEditDeckName}>
+                      {deck.deckName}
+                  </h1>
+              )}
 
               <div className="exam-buttons">
                   <button type="button">Practice Mode</button>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import CreateDeckModal from "./modals/CreateDeckModal";
@@ -35,6 +35,8 @@ function CollectionPage() {
 
     const [isEditingCollectionName, setIsEditingCollectionName] = useState(false);
     const [editedCollectionName, setEditedCollectionName] = useState("");
+    const [collectionTitleSize, setCollectionTitleSize] = useState(null);
+    const collectionTitleRef = useRef(null);
 
     const {
         data: collection,
@@ -132,6 +134,11 @@ function CollectionPage() {
     };
 
     const handleEditCollectionName = () => {
+        if (collectionTitleRef.current) {
+            const rect = collectionTitleRef.current.getBoundingClientRect();
+            setCollectionTitleSize({ width: rect.width, height: rect.height });
+        }
+
         setEditedCollectionName(collection.collectionName);
         setIsEditingCollectionName(true);
     };
@@ -200,7 +207,14 @@ function CollectionPage() {
                     {isEditingCollectionName ? (
                         <input
                             className="collection-name-input"
-                            style={{ width: `${Math.max(editedCollectionName.length, 1)}ch` }}
+                            style={
+                                collectionTitleSize
+                                    ? {
+                                          width: collectionTitleSize.width,
+                                          height: collectionTitleSize.height,
+                                      }
+                                    : undefined
+                            }
                             autoFocus
                             value={editedCollectionName}
                             onChange={(e) => setEditedCollectionName(e.target.value)}
@@ -216,7 +230,7 @@ function CollectionPage() {
                             onBlur={handleSaveCollectionName}
                         />
                     ) : (
-                        <h1 onDoubleClick={handleEditCollectionName}>
+                        <h1 ref={collectionTitleRef} onDoubleClick={handleEditCollectionName}>
                             {collection.collectionName}
                         </h1>
                     )}
