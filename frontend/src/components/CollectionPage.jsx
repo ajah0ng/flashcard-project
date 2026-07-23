@@ -30,6 +30,9 @@ function CollectionPage() {
     const [showAddDeckModal, setShowAddDeckModal] =
         useState(false);
 
+    const [editingDeckId, setEditingDeckId] = useState(null);
+    const [editedDeckName, setEditedDeckName] = useState("");
+
     const {
         data: collection,
         isLoading,
@@ -76,6 +79,53 @@ function CollectionPage() {
         );
 
         setShowAddDeckModal(false);
+    };
+
+    const handleEditDeck = (deck) => {
+        setEditingDeckId(deck._id);
+        setEditedDeckName(deck.deckName);
+    };
+
+    const handleSaveDeckName = async (deckId) => {
+        const trimmedName = editedDeckName.trim();
+
+        if (!trimmedName) {
+            setEditingDeckId(null);
+            return;
+        }
+
+        try {
+            const response = await axios.put(
+                `http://localhost:5001/api/decks/${deckId}`,
+                { updatedDeckName: trimmedName }
+            );
+
+            queryClient.setQueryData(
+                ["collection", collectionId],
+                (oldCollection) => {
+                    if (!oldCollection) return oldCollection;
+
+                    return {
+                        ...oldCollection,
+                        decks: oldCollection.decks.map((deck) =>
+                            deck._id === deckId
+                                ? { ...deck, deckName: response.data.deckName }
+                                : deck
+                        ),
+                    };
+                }
+            );
+
+            queryClient.setQueryData(["deck", deckId], (oldDeck) => {
+                if (!oldDeck) return oldDeck;
+
+                return { ...oldDeck, deckName: response.data.deckName };
+            });
+
+            setEditingDeckId(null);
+        } catch (error) {
+            console.error("Failed to edit deck:", error);
+        }
     };
 
 
@@ -138,20 +188,55 @@ function CollectionPage() {
                         role="button"
                         tabIndex={0}
                         onMouseEnter={() => handlePrefetchDeck(deck._id)}
-                        onClick={() =>
-                        navigate(
+                        onClick={() => {
+                        if (editingDeckId !== deck._id) {
+                            navigate(
                             `/collections/${collectionId}/decks/${deck._id}`
-                        )
+                            );
                         }
+                        }}
                         onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
+                        if (
+                            editingDeckId !== deck._id &&
+                            (event.key === "Enter" || event.key === " ")
+                        ) {
                             navigate(
                             `/collections/${collectionId}/decks/${deck._id}`
                             );
                         }
                         }}
                         >
-                        <h3>{deck.deckName}</h3>
+                        {editingDeckId === deck._id ? (
+                            <input
+                                className="deck-name-input"
+                                autoFocus
+                                value={editedDeckName}
+                                onChange={(e) => setEditedDeckName(e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                onKeyDown={(e) => {
+                                    e.stopPropagation();
+
+                                    if (e.key === "Enter") {
+                                        handleSaveDeckName(deck._id);
+                                    }
+
+                                    if (e.key === "Escape") {
+                                        setEditingDeckId(null);
+                                    }
+                                }}
+                                onBlur={() => handleSaveDeckName(deck._id)}
+                            />
+                        ) : (
+                            <h3
+                                onClick={(e) => e.stopPropagation()}
+                                onDoubleClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditDeck(deck);
+                                }}
+                            >
+                                {deck.deckName}
+                            </h3>
+                        )}
                         <p>{deck.cards?.length || 0} cards</p>
                         </div>
                     ))

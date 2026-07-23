@@ -43,6 +43,27 @@
   color: #111827;
 }
 
+.deck-name-input {
+  display: block;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: inherit;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid #cbd5e1;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.deck-name-input:focus {
+  outline: none;
+  border-bottom-color: #4f46e5;
+}
+
 .deck-card p {
   font-size: 0.875rem;
   color: #6b7280;
