@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -40,6 +40,35 @@ function DeckPage() {
   const [editingCardId, setEditingCardId] = useState(null);
   const [editedCourseOutcome, setEditedCourseOutcome] = useState("");
   const cardClickTimeoutRef = useRef(null);
+
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({
+    flagged: false,
+    favourite: false,
+  });
+  const filterMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!isFilterMenuOpen) return;
+
+    const handleClickOutside = (event) => {
+      if (filterMenuRef.current && !filterMenuRef.current.contains(event.target)) {
+        setIsFilterMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isFilterMenuOpen]);
+
+  const toggleActiveFilter = (field) => {
+    setActiveFilters((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  const isFiltering = activeFilters.flagged || activeFilters.favourite;
 
   const {
     data: deck,
@@ -266,9 +295,17 @@ function DeckPage() {
     );
   }
 
+  const visibleCards = isFiltering
+    ? (deck.cards || []).filter(
+        (card) =>
+          (activeFilters.flagged && card.flagged) ||
+          (activeFilters.favourite && card.favourite)
+      )
+    : deck.cards || [];
+
   return (
     <div id="deck-page"
-    
+
     >
 
       
@@ -326,11 +363,53 @@ function DeckPage() {
       
       </div>
 
+      <div className="deck-filter-bar">
+        <div className="menu-container" ref={filterMenuRef}>
+          <button
+            type="button"
+            className={
+              isFiltering ? "filter-toggle-btn filter-toggle-btn-active" : "filter-toggle-btn"
+            }
+            onClick={() => setIsFilterMenuOpen((open) => !open)}
+          >
+            Filter{isFiltering ? ` (${[activeFilters.flagged && "❓", activeFilters.favourite && "★"].filter(Boolean).join(" ")})` : ""}
+          </button>
+
+          {isFilterMenuOpen && (
+            <div className="menu filter-menu">
+              <label className="filter-option">
+                <input
+                  type="checkbox"
+                  checked={activeFilters.flagged}
+                  onChange={() => toggleActiveFilter("flagged")}
+                />
+                <img src={filledQuestionIcon} alt="" />
+                To revise
+              </label>
+
+              <label className="filter-option">
+                <input
+                  type="checkbox"
+                  checked={activeFilters.favourite}
+                  onChange={() => toggleActiveFilter("favourite")}
+                />
+                <img src={filledStarIcon} alt="" />
+                Likely to appear
+              </label>
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="course-outline-container">
-        {!deck.cards || deck.cards.length === 0 ? (
-          <p>No cards in this deck.</p>
+        {!visibleCards || visibleCards.length === 0 ? (
+          <p>
+            {isFiltering
+              ? "No cards match the selected filters."
+              : "No cards in this deck."}
+          </p>
         ) : (
-          deck.cards.map((card) => (
+          visibleCards.map((card) => (
             <div
               key={card._id}
               className="course-outline-card"
