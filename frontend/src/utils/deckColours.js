@@ -8,7 +8,15 @@ export const deckColours = [
   "#84CC16",
 ];
 
-export const getDeckColour = (deckId = "") => {
+// When the deck's position within its collection is known, colour is assigned
+// by that position so decks in the same collection never collide until there
+// are more decks than colours. Without a position (e.g. no collection context
+// yet available), falls back to a hash of the deckId.
+export const getDeckColour = (deckId = "", deckIndex) => {
+  if (typeof deckIndex === "number") {
+    return deckColours[deckIndex % deckColours.length];
+  }
+
   let hash = 0;
 
   for (let index = 0; index < deckId.length; index += 1) {

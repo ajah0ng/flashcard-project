@@ -35,11 +35,31 @@ const fetchDeck = async (deckId) => {
   return response.data;
 };
 
+const fetchCollection = async (collectionId) => {
+  const response = await axios.get(
+    `http://localhost:5001/api/collections/${collectionId}`
+  );
+
+  return response.data;
+};
+
 function CardPage() {
   const { collectionId, deckId, cardId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const deckColour = getDeckColour(deckId);
+
+  const { data: collection } = useQuery({
+    queryKey: ["collection", collectionId],
+    queryFn: () => fetchCollection(collectionId),
+    enabled: Boolean(collectionId),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+
+  const deckIndex = collection?.decks
+    ? collection.decks.findIndex((d) => d._id === deckId)
+    : -1;
+  const deckColour = getDeckColour(deckId, deckIndex === -1 ? undefined : deckIndex);
 
   const [courseOutcome, setCourseOutcome] = useState("");
   const [content, setContent] = useState("");

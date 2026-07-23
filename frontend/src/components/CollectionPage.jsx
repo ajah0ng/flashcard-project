@@ -312,12 +312,12 @@ function CollectionPage() {
                     {!collection.decks || collection.decks.length === 0 ? (
                     <p>No decks in this collection.</p>
                     ) : (
-                    collection.decks.map((deck) => (
+                    collection.decks.map((deck, deckIndex) => (
                         <div
                         key={deck._id}
                         className="deck-card"
                         style={{
-                            "--deck-colour": getDeckColour(deck._id),
+                            "--deck-colour": getDeckColour(deck._id, deckIndex),
                         }}
                         role="button"
                         tabIndex={0}
