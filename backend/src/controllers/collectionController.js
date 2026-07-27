@@ -12,7 +12,7 @@ import Deck from "../models/Deck.js";
  */
 export async function getCollectionList(req, res) {
     try {
-        const collections = await Collection.find()
+        const collections = await Collection.find({ owner: req.user.id })
             .populate({
                 path: "decks",
                 select: "_id"
@@ -64,7 +64,7 @@ export async function getCollectionById(req, res) {
     try {
         const { id } = req.params;
 
-        const collection = await Collection.findById(id)
+        const collection = await Collection.findOne({ _id: id, owner: req.user.id })
             .populate({
                 path: "decks",
                 select: "_id deckName cards",
@@ -111,12 +111,15 @@ export async function createCollection(req, res) {
     const { collectionName = "", decks = [] } = req.body;
 
     const createdDecks = await Deck.insertMany(
-        decks.filter(name => name.trim()).map(name => ({ deckName: name }))
+        decks
+            .filter(name => name.trim())
+            .map(name => ({ deckName: name, owner: req.user.id }))
     );
 
     const deckIds = createdDecks.map((deck) => deck._id);
 
     const newCollection = new Collection({
+      owner: req.user.id,
       collectionName: collectionName,
       decks: deckIds,
     });
@@ -136,8 +139,8 @@ export async function updateCollection(req, res) {
         const { id } = req.params;
         const { collectionName } = req.body;
 
-        const updatedCollection = await Collection.findByIdAndUpdate(
-            id,
+        const updatedCollection = await Collection.findOneAndUpdate(
+            { _id: id, owner: req.user.id },
             { collectionName },
             { new: true }
         );
@@ -163,7 +166,7 @@ export async function deleteCollection(req, res) {
     try {
         const { id } = req.params;
 
-        const deletedCollection = await Collection.findByIdAndDelete(id);
+        const deletedCollection = await Collection.findOneAndDelete({ _id: id, owner: req.user.id });
 
         if (!deletedCollection) {
             return res.status(404).json({
@@ -185,7 +188,7 @@ export async function deleteCollection(req, res) {
 
 export const updateLastStudied = async (req, res) => {
     try {
-        const collection = await Collection.findById(req.params.id);
+        const collection = await Collection.findOne({ _id: req.params.id, owner: req.user.id });
 
         if (!collection) {
             return res.status(404).json({ message: "Collection not found" });

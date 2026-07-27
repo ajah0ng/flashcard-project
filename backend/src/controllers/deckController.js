@@ -11,7 +11,7 @@ export async function getDeckById(req, res) {
     try {
         const { id } = req.params;
 
-        const deck = await Deck.findById(id).populate("cards");
+        const deck = await Deck.findOne({ _id: id, owner: req.user.id }).populate("cards");
 
 
         if (!deck) {
@@ -36,8 +36,8 @@ export async function updateDeckName(req, res) {
 
         const { updatedDeckName } = req.body;
 
-        const updatedDeck = await Deck.findByIdAndUpdate(
-            id,
+        const updatedDeck = await Deck.findOneAndUpdate(
+            { _id: id, owner: req.user.id },
             {
                 deckName: updatedDeckName,
             },
@@ -67,7 +67,7 @@ export async function deleteDeck(req, res) {
     try {
         const { id } = req.params;
 
-        const deck = await Deck.findByIdAndDelete(id);
+        const deck = await Deck.findOneAndDelete({ _id: id, owner: req.user.id });
 
         if (!deck) {
             return res.status(404).json({
@@ -78,7 +78,7 @@ export async function deleteDeck(req, res) {
         await Card.deleteMany({ _id: { $in: deck.cards } });
 
         await Collection.updateMany(
-            { decks: id },
+            { decks: id, owner: req.user.id },
             { $pull: { decks: id } }
         );
 
@@ -97,19 +97,28 @@ export const createDeck = async (req, res) => {
   try {
     const { collectionId, deckName, cards } = req.body;
 
-    const createdCards = await Card.insertMany(cards);
+    const collection = await Collection.findOne({ _id: collectionId, owner: req.user.id });
+
+    if (!collection) {
+      return res.status(404).json({ message: "Collection not found" });
+    }
+
+    const createdCards = await Card.insertMany(
+        (cards || []).map((card) => ({ ...card, owner: req.user.id }))
+    );
 
     const deck = await Deck.create({
+        owner: req.user.id,
         deckName,
         cards: createdCards.map(card => card._id),
     });
 
-    await Collection.findByIdAndUpdate(collectionId, {
-        $push: { decks: deck._id },
-    });
+    collection.decks.push(deck._id);
+    await collection.save();
+
     const populatedDeck = await Deck.findById(deck._id).populate("cards");
     res.status(201).json(populatedDeck);
-    
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

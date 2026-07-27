@@ -4,7 +4,7 @@ import Deck from "../models/Deck.js";
 // GET all cards
 export const getCardList = async (req, res) => {
   try {
-    const cards = await Card.find();
+    const cards = await Card.find({ owner: req.user.id });
     res.status(200).json(cards);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -14,7 +14,7 @@ export const getCardList = async (req, res) => {
 // GET one card by id
 export const getCardById = async (req, res) => {
   try {
-    const card = await Card.findById(req.params.id);
+    const card = await Card.findOne({ _id: req.params.id, owner: req.user.id });
 
     if (!card) {
       return res.status(404).json({ message: "Card not found" });
@@ -35,13 +35,14 @@ export const createCard = async (req, res) => {
       return res.status(400).json({ message: "deckId is required" });
     }
 
-    const deck = await Deck.findById(deckId);
+    const deck = await Deck.findOne({ _id: deckId, owner: req.user.id });
 
     if (!deck) {
       return res.status(404).json({ message: "Deck not found" });
     }
 
     const newCard = await Card.create({
+      owner: req.user.id,
       courseOutcome: courseOutcome?.trim() || "",
       keyWords: Array.isArray(keyWords) ? keyWords : [],
       content: content?.trim() || "",
@@ -61,8 +62,8 @@ export const updateCard = async (req, res) => {
   try {
     const { courseOutcome, keyWords, content, favourite, flagged } = req.body;
 
-    const updatedCard = await Card.findByIdAndUpdate(
-      req.params.id,
+    const updatedCard = await Card.findOneAndUpdate(
+      { _id: req.params.id, owner: req.user.id },
       {
         ...(courseOutcome !== undefined && {
           courseOutcome: courseOutcome.trim(),
@@ -96,14 +97,14 @@ export const updateCard = async (req, res) => {
 // DELETE card
 export const deleteCard = async (req, res) => {
   try {
-    const deletedCard = await Card.findByIdAndDelete(req.params.id);
+    const deletedCard = await Card.findOneAndDelete({ _id: req.params.id, owner: req.user.id });
 
     if (!deletedCard) {
       return res.status(404).json({ message: "Card not found" });
     }
 
     await Deck.updateMany(
-      { cards: req.params.id },
+      { cards: req.params.id, owner: req.user.id },
       { $pull: { cards: req.params.id } }
     );
 
