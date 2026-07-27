@@ -22,7 +22,7 @@ const SWIPE_GESTURE_IDLE_MS = 200;
 
 const fetchCard = async (cardId) => {
   const response = await axios.get(
-    `http://localhost:5001/api/cards/${cardId}`
+    `/api/cards/${cardId}`
   );
 
   return response.data;
@@ -30,7 +30,7 @@ const fetchCard = async (cardId) => {
 
 const fetchDeck = async (deckId) => {
   const response = await axios.get(
-    `http://localhost:5001/api/decks/${deckId}`
+    `/api/decks/${deckId}`
   );
 
   return response.data;
@@ -38,7 +38,7 @@ const fetchDeck = async (deckId) => {
 
 const fetchCollection = async (collectionId) => {
   const response = await axios.get(
-    `http://localhost:5001/api/collections/${collectionId}`
+    `/api/collections/${collectionId}`
   );
 
   return response.data;
@@ -228,7 +228,7 @@ function CardPage() {
       setSaveError("");
 
       const response = await axios.put(
-        `http://localhost:5001/api/cards/${cardId}`,
+        `/api/cards/${cardId}`,
         updates
       );
 
@@ -306,7 +306,7 @@ function CardPage() {
     applyFieldToCaches(field, nextValue);
 
     try {
-      await axios.put(`http://localhost:5001/api/cards/${cardId}`, {
+      await axios.put(`/api/cards/${cardId}`, {
         [field]: nextValue,
       });
     } catch (err) {
@@ -322,7 +322,7 @@ function CardPage() {
 
   const handleDeleteCard = async () => {
     try {
-      await axios.delete(`http://localhost:5001/api/cards/${cardId}`);
+      await axios.delete(`/api/cards/${cardId}`);
 
       queryClient.setQueryData(["deck", deckId], (oldDeck) => {
         if (!oldDeck) return oldDeck;

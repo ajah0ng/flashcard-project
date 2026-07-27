@@ -12,14 +12,14 @@ import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
 
 const fetchCollections = async () => {
     const response = await axios.get(
-        "http://localhost:5001/api/collections"
+        "/api/collections"
     );
     return response.data;
 };
 
 const fetchCollection = async (collectionId) => {
     const response = await axios.get(
-        `http://localhost:5001/api/collections/${collectionId}`
+        `/api/collections/${collectionId}`
     );
     return response.data;
 };
@@ -61,7 +61,7 @@ function Home() {
     const handleCreateCollection = async () => {
         try {
             const response = await axios.post(
-                "http://localhost:5001/api/collections",
+                "/api/collections",
                 {
                     collectionName: "",
                     decks: [],
@@ -78,7 +78,7 @@ function Home() {
         navigate(`/collections/${collectionId}`);
 
         axios
-            .patch(`http://localhost:5001/api/collections/${collectionId}/study`)
+            .patch(`/api/collections/${collectionId}/study`)
             .then((response) => {
                 queryClient.setQueryData(["collections"], (old = []) =>
                     old.map((collection) =>
@@ -101,7 +101,7 @@ function Home() {
     const handleDelete = async (collectionId) => {
         try {
             await axios.delete(
-                `http://localhost:5001/api/collections/${collectionId}`
+                `/api/collections/${collectionId}`
             );
 
             // Remove it from the React Query cache
@@ -131,7 +131,7 @@ function Home() {
 
         try {
             const response = await axios.put(
-                `http://localhost:5001/api/collections/${collectionId}`,
+                `/api/collections/${collectionId}`,
                 {
                     collectionName: editedName.trim(),
                 }

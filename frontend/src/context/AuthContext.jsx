@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 const AuthContext = createContext(null);
 
 const fetchCurrentUser = async () => {
-    const response = await axios.get("http://localhost:5001/api/auth/me");
+    const response = await axios.get("/api/auth/me");
     return response.data;
 };
 
@@ -37,7 +37,7 @@ export function AuthProvider({ children }) {
     }, [queryClient]);
 
     const signInWithGoogle = useCallback(async (credential) => {
-        const response = await axios.post("http://localhost:5001/api/auth/google", {
+        const response = await axios.post("/api/auth/google", {
             credential,
         });
 
@@ -47,7 +47,7 @@ export function AuthProvider({ children }) {
 
     const signOut = useCallback(async () => {
         try {
-            await axios.post("http://localhost:5001/api/auth/logout");
+            await axios.post("/api/auth/logout");
         } finally {
             queryClient.clear();
             setUser(null);

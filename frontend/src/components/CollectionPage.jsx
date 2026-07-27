@@ -21,14 +21,14 @@ import filledQuestionIcon from '../../assets/filled-question.svg'
 
 const fetchCollection = async (collectionId) => {
     const response = await axios.get(
-        `http://localhost:5001/api/collections/${collectionId}`
+        `/api/collections/${collectionId}`
     );
     return response.data;
 };
 
 const fetchDeck = async (deckId) => {
     const response = await axios.get(
-        `http://localhost:5001/api/decks/${deckId}`
+        `/api/decks/${deckId}`
     );
     return response.data;
 };
@@ -212,7 +212,7 @@ function CollectionPage() {
         patchCardFields(queryClient, { cardId, deckId, collectionId, updates });
 
         try {
-            await axios.put(`http://localhost:5001/api/cards/${cardId}`, updates);
+            await axios.put(`/api/cards/${cardId}`, updates);
         } catch (error) {
             console.error("Failed to update card:", error);
         }
@@ -252,7 +252,7 @@ function CollectionPage() {
     const handleCreateDeck = async () => {
         try {
             const response = await axios.post(
-                "http://localhost:5001/api/decks",
+                "/api/decks",
                 {
                     collectionId,
                     deckName: "",
@@ -296,7 +296,7 @@ function CollectionPage() {
 
         try {
             const response = await axios.put(
-                `http://localhost:5001/api/decks/${deckId}`,
+                `/api/decks/${deckId}`,
                 { updatedDeckName: trimmedName }
             );
 
@@ -330,7 +330,7 @@ function CollectionPage() {
 
     const handleDeleteDeck = async (deckId) => {
         try {
-            await axios.delete(`http://localhost:5001/api/decks/${deckId}`);
+            await axios.delete(`/api/decks/${deckId}`);
 
             queryClient.setQueryData(
                 ["collection", collectionId],
@@ -372,7 +372,7 @@ function CollectionPage() {
 
         try {
             const response = await axios.put(
-                `http://localhost:5001/api/collections/${collectionId}`,
+                `/api/collections/${collectionId}`,
                 { collectionName: trimmedName }
             );
 

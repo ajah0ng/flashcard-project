@@ -24,7 +24,7 @@ import ExamSession from "./ExamSession";
 
 const fetchDeck = async (deckId) => {
   const response = await axios.get(
-    `http://localhost:5001/api/decks/${deckId}`
+    `/api/decks/${deckId}`
   );
 
   return response.data;
@@ -32,7 +32,7 @@ const fetchDeck = async (deckId) => {
 
 const fetchCollection = async (collectionId) => {
   const response = await axios.get(
-    `http://localhost:5001/api/collections/${collectionId}`
+    `/api/collections/${collectionId}`
   );
 
   return response.data;
@@ -142,7 +142,7 @@ function DeckPage() {
 
   const handleCreateCard = async () => {
     try {
-      const response = await axios.post("http://localhost:5001/api/cards", {
+      const response = await axios.post("/api/cards", {
         deckId,
       });
 
@@ -200,7 +200,7 @@ function DeckPage() {
     applyCardFieldToCaches(card._id, field, nextValue);
 
     try {
-      await axios.put(`http://localhost:5001/api/cards/${card._id}`, {
+      await axios.put(`/api/cards/${card._id}`, {
         [field]: nextValue,
       });
     } catch (err) {
@@ -311,7 +311,7 @@ function DeckPage() {
     });
 
     try {
-      await axios.put(`http://localhost:5001/api/cards/${cardId}`, updates);
+      await axios.put(`/api/cards/${cardId}`, updates);
     } catch (err) {
       console.error("Failed to update card:", err);
     }
@@ -350,7 +350,7 @@ function DeckPage() {
 
   const handleDeleteCard = async (cardId) => {
     try {
-      await axios.delete(`http://localhost:5001/api/cards/${cardId}`);
+      await axios.delete(`/api/cards/${cardId}`);
 
       queryClient.setQueryData(["deck", deckId], (oldDeck) => {
         if (!oldDeck) return oldDeck;
@@ -382,7 +382,7 @@ function DeckPage() {
 
     try {
       const response = await axios.put(
-        `http://localhost:5001/api/cards/${cardId}`,
+        `/api/cards/${cardId}`,
         { courseOutcome: trimmedOutcome }
       );
 
@@ -431,7 +431,7 @@ function DeckPage() {
 
     try {
       const response = await axios.put(
-        `http://localhost:5001/api/decks/${deckId}`,
+        `/api/decks/${deckId}`,
         { updatedDeckName: trimmedName }
       );
 
