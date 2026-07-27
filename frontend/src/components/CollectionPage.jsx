@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
+import ExamConditionsModal from "./modals/ExamConditionsModal";
 import PracticeSession from "./PracticeSession";
 import '../styles/CollectionsPage.css'
 import '../styles/Page.css'
@@ -46,10 +47,14 @@ function CollectionPage() {
     const [collectionTitleSize, setCollectionTitleSize] = useState(null);
     const collectionTitleRef = useRef(null);
 
-    const [isSelectingDecks, setIsSelectingDecks] = useState(false);
+    const [selectionIntent, setSelectionIntent] = useState(null); // null | "practice" | "exam"
     const [selectedDeckIds, setSelectedDeckIds] = useState(new Set());
     const [practiceCards, setPracticeCards] = useState(null);
+    const [examModalDeckCount, setExamModalDeckCount] = useState(0);
+    const [showExamModal, setShowExamModal] = useState(false);
     const dragSelectRef = useRef({ isDragging: false, mode: "select" });
+
+    const isSelectingDecks = selectionIntent !== null;
 
     const {
         data: collection,
@@ -106,20 +111,15 @@ function CollectionPage() {
         }
     };
 
-    const handleStartSelectingDecks = () => {
-        setIsSelectingDecks((wasSelecting) => {
-            if (wasSelecting) {
-                setSelectedDeckIds(new Set());
-                return false;
-            }
-
+    const handleStartSelectingDecks = (intent) => {
+        setSelectionIntent((current) => {
             setSelectedDeckIds(new Set());
-            return true;
+            return current === intent ? null : intent;
         });
     };
 
     const handleCancelSelectingDecks = () => {
-        setIsSelectingDecks(false);
+        setSelectionIntent(null);
         setSelectedDeckIds(new Set());
     };
 
@@ -152,11 +152,20 @@ function CollectionPage() {
             });
 
             setPracticeCards(shuffleArray(allCards));
-            setIsSelectingDecks(false);
+            setSelectionIntent(null);
             setSelectedDeckIds(new Set());
         } catch (error) {
             console.error("Failed to start practice mode:", error);
         }
+    };
+
+    const handleConfirmExamSelection = () => {
+        if (selectedDeckIds.size === 0) return;
+
+        setExamModalDeckCount(selectedDeckIds.size);
+        setSelectionIntent(null);
+        setSelectedDeckIds(new Set());
+        setShowExamModal(true);
     };
 
     const handleUpdatePracticeCard = async (cardId, deckId, updates) => {
@@ -170,11 +179,15 @@ function CollectionPage() {
     };
 
     useEffect(() => {
-        if (!isSelectingDecks) return;
+        if (!selectionIntent) return;
 
         const handleKeyDown = (event) => {
             if (event.key === "Enter") {
-                handleStartPractice();
+                if (selectionIntent === "practice") {
+                    handleStartPractice();
+                } else if (selectionIntent === "exam") {
+                    handleConfirmExamSelection();
+                }
             }
 
             if (event.key === "Escape") {
@@ -194,7 +207,7 @@ function CollectionPage() {
             document.removeEventListener("mouseup", handleMouseUp);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isSelectingDecks, selectedDeckIds]);
+    }, [selectionIntent, selectedDeckIds]);
 
     const handleCreateDeck = async () => {
         try {
@@ -408,12 +421,18 @@ function CollectionPage() {
                     <div className="exam-buttons">
                         <button
                             type="button"
-                            className={isSelectingDecks ? "practice-mode-btn-active" : undefined}
-                            onClick={handleStartSelectingDecks}
+                            className={selectionIntent === "practice" ? "practice-mode-btn-active" : undefined}
+                            onClick={() => handleStartSelectingDecks("practice")}
                         >
-                            {isSelectingDecks ? "Cancel Selection" : "Practice Mode"}
+                            {selectionIntent === "practice" ? "Cancel Selection" : "Practice Mode"}
                         </button>
-                        <button type="button">Exam Mode</button>
+                        <button
+                            type="button"
+                            className={selectionIntent === "exam" ? "practice-mode-btn-active" : undefined}
+                            onClick={() => handleStartSelectingDecks("exam")}
+                        >
+                            {selectionIntent === "exam" ? "Cancel Selection" : "Exam Mode"}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -635,10 +654,17 @@ function CollectionPage() {
                         {selectedDeckIds.size} deck{selectedDeckIds.size === 1 ? "" : "s"} selected
                     </span>
                     <span className="selection-hint-instruction">
-                        Click or drag across decks to select · Press Enter to start · Esc to cancel
+                        Click or drag across decks to select · Press Enter to{" "}
+                        {selectionIntent === "exam" ? "continue" : "start"} · Esc to cancel
                     </span>
                 </div>
             )}
+
+            <ExamConditionsModal
+                isOpen={showExamModal}
+                onClose={() => setShowExamModal(false)}
+                deckCount={examModalDeckCount}
+            />
 
             {practiceCards && (
                 <PracticeSession

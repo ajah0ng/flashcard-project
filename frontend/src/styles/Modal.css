@@ -169,6 +169,27 @@
   background: #b91c1c;
 }
 
+/* Exam conditions modal */
+
+.exam-conditions-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #444;
+  font-weight: 500;
+}
+
+.exam-conditions-list li {
+  margin-bottom: 8px;
+}
+
+.exam-confirm-btn {
+  background: #6366f1 !important;
+}
+
+.exam-confirm-btn:hover {
+  background: #4f46e5 !important;
+}
+
 /* Responsive */
 
 @media (max-width: 600px) {
