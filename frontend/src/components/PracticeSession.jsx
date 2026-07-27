@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useNavigate } from "react-router-dom";
 import Tiptap from "./Tiptap";
 import filledStarIcon from '../../assets/filled-star.svg'
 import unfilledStarIcon from '../../assets/unfilled-star.svg'
@@ -8,13 +7,14 @@ import filledQuestionIcon from '../../assets/filled-question.svg'
 import unfilledQuestionIcon from '../../assets/unfilled-question.svg'
 import '../styles/PracticeMode.css'
 
-function PracticeSession({ cards, collectionId, onClose, onUpdateCard }) {
-  const navigate = useNavigate();
+function PracticeSession({ cards, onClose, onUpdateCard }) {
   const [sessionCards, setSessionCards] = useState(cards);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [userAnswer, setUserAnswer] = useState("");
   const [showHint, setShowHint] = useState(false);
+  const [isEditingCardContent, setIsEditingCardContent] = useState(false);
+  const [editableContent, setEditableContent] = useState("");
 
   const currentCard = sessionCards[currentIndex];
   const isComplete = !currentCard;
@@ -29,7 +29,34 @@ function PracticeSession({ cards, collectionId, onClose, onUpdateCard }) {
     );
   };
 
+  const persistCardContent = (nextContent) => {
+    const value = nextContent ?? editableContent;
+
+    if (value === (currentCard.content || "")) return;
+
+    onUpdateCard(currentCard._id, currentCard.deckId, { content: value });
+
+    setSessionCards((prev) =>
+      prev.map((c) => (c._id === currentCard._id ? { ...c, content: value } : c))
+    );
+  };
+
+  const startEditingCard = () => {
+    setEditableContent(currentCard.content || "");
+    setIsEditingCardContent(true);
+    setIsFlipped(true);
+  };
+
+  const finishEditingCard = () => {
+    persistCardContent();
+    setIsEditingCardContent(false);
+  };
+
   const goToNext = () => {
+    if (isEditingCardContent) {
+      finishEditingCard();
+    }
+
     if (currentIndex + 1 >= sessionCards.length) {
       setCurrentIndex((i) => i + 1);
       return;
@@ -39,12 +66,6 @@ function PracticeSession({ cards, collectionId, onClose, onUpdateCard }) {
     setIsFlipped(false);
     setUserAnswer("");
     setShowHint(false);
-  };
-
-  const goToEditCard = () => {
-    navigate(
-      `/collections/${collectionId}/decks/${currentCard.deckId}/cards/${currentCard._id}`
-    );
   };
 
   // Keep the listener subscribed exactly once; refs give the handler
@@ -195,8 +216,13 @@ function PracticeSession({ cards, collectionId, onClose, onUpdateCard }) {
             style={{ "--deck-colour": currentCard.deckColour }}
             role="button"
             tabIndex={0}
-            onClick={() => setIsFlipped((flipped) => !flipped)}
+            onClick={() => {
+              if (isEditingCardContent) return;
+              setIsFlipped((flipped) => !flipped);
+            }}
             onKeyDown={(event) => {
+              if (isEditingCardContent) return;
+
               if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
                 setIsFlipped((flipped) => !flipped);
@@ -227,20 +253,44 @@ function PracticeSession({ cards, collectionId, onClose, onUpdateCard }) {
             </div>
 
             <div className="flashcard-face flashcard-back">
-              <div
-                className="flashcard-content"
-                dangerouslySetInnerHTML={{
-                  __html: currentCard.content || "<p><em>No content yet</em></p>",
-                }}
-              />
+              {isEditingCardContent ? (
+                <div
+                  className="flashcard-content-editor"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <Tiptap
+                    content={editableContent}
+                    onChange={setEditableContent}
+                    onBlur={persistCardContent}
+                    autoFocus
+                  />
+                </div>
+              ) : (
+                <div
+                  className="flashcard-content"
+                  dangerouslySetInnerHTML={{
+                    __html: currentCard.content || "<p><em>No content yet</em></p>",
+                  }}
+                />
+              )}
             </div>
           </div>
         </div>
 
         <div className="practice-below-card-row">
-          <button type="button" className="practice-edit-link" onClick={goToEditCard}>
-            ✎ Edit this card
-          </button>
+          {isEditingCardContent ? (
+            <button
+              type="button"
+              className="practice-primary-btn practice-edit-done-btn"
+              onClick={finishEditingCard}
+            >
+              Done editing
+            </button>
+          ) : (
+            <button type="button" className="practice-edit-link" onClick={startEditingCard}>
+              ✎ Edit this card
+            </button>
+          )}
 
           <p className="practice-hint">Hold ⌘H for a key word hint</p>
         </div>

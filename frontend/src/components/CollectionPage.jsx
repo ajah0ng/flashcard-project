@@ -643,7 +643,6 @@ function CollectionPage() {
             {practiceCards && (
                 <PracticeSession
                     cards={practiceCards}
-                    collectionId={collectionId}
                     onClose={() => setPracticeCards(null)}
                     onUpdateCard={handleUpdatePracticeCard}
                 />
