@@ -1,6 +1,6 @@
 import '../../styles/Modal.css'
 
-function ExamConditionsModal({ isOpen, onClose, onStart, deckCount = 0 }) {
+function ExamConditionsModal({ isOpen, onClose, onStart, deckCount = 0, itemLabel = "deck" }) {
   if (!isOpen) return null;
 
   return (
@@ -11,7 +11,7 @@ function ExamConditionsModal({ isOpen, onClose, onStart, deckCount = 0 }) {
 
         <span>
           You're about to start a mock exam under simulated Inspera
-          conditions, covering {deckCount} deck{deckCount === 1 ? "" : "s"}:
+          conditions, covering {deckCount} {itemLabel}{deckCount === 1 ? "" : "s"}:
         </span>
 
         <ul className="exam-conditions-list">

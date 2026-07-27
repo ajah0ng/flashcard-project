@@ -18,6 +18,8 @@ import { rankDecksToRevise } from "../utils/rankDecks";
 import { shuffleArray } from "../utils/shuffle";
 import { patchCardFields } from "../utils/cardCacheSync";
 import PracticeSession from "./PracticeSession";
+import ExamConditionsModal from "./modals/ExamConditionsModal";
+import ExamSession from "./ExamSession";
 
 const fetchDeck = async (deckId) => {
   const response = await axios.get(
@@ -94,10 +96,16 @@ function DeckPage() {
 
   const isFiltering = activeFilters.flagged || activeFilters.favourite;
 
-  const [isSelectingCards, setIsSelectingCards] = useState(false);
+  const [selectionIntent, setSelectionIntent] = useState(null); // null | "practice" | "exam"
   const [selectedCardIds, setSelectedCardIds] = useState(new Set());
   const [practiceCards, setPracticeCards] = useState(null);
+  const [examCardIds, setExamCardIds] = useState([]);
+  const [examModalCardCount, setExamModalCardCount] = useState(0);
+  const [showExamModal, setShowExamModal] = useState(false);
+  const [examCards, setExamCards] = useState(null);
   const dragSelectRef = useRef({ isDragging: false, mode: "select" });
+
+  const isSelectingCards = selectionIntent !== null;
 
   const {
     data: deck,
@@ -229,22 +237,22 @@ function DeckPage() {
     handleToggleCardSelection(cardId, dragSelectRef.current.mode === "select");
   };
 
-  const handleStartSelectingCards = () => {
-    setIsSelectingCards((wasSelecting) => {
-      if (wasSelecting) {
-        setSelectedCardIds(new Set());
-        return false;
-      }
+  const handleStartSelectingCards = (intent) => {
+    setSelectionIntent((current) => {
+      const next = current === intent ? null : intent;
 
       // All cards are selected by default; the user toggles off what
-      // they don't want to practice.
-      setSelectedCardIds(new Set(visibleCards.map((card) => card._id)));
-      return true;
+      // they don't want to practice/exam on.
+      setSelectedCardIds(
+        next ? new Set(visibleCards.map((card) => card._id)) : new Set()
+      );
+
+      return next;
     });
   };
 
   const handleCancelSelectingCards = () => {
-    setIsSelectingCards(false);
+    setSelectionIntent(null);
     setSelectedCardIds(new Set());
   };
 
@@ -261,8 +269,36 @@ function DeckPage() {
       }));
 
     setPracticeCards(shuffleArray(selected));
-    setIsSelectingCards(false);
+    setSelectionIntent(null);
     setSelectedCardIds(new Set());
+  };
+
+  const handleConfirmExamSelection = () => {
+    if (selectedCardIds.size === 0) return;
+
+    setExamCardIds(Array.from(selectedCardIds));
+    setExamModalCardCount(selectedCardIds.size);
+    setSelectionIntent(null);
+    setSelectedCardIds(new Set());
+    setShowExamModal(true);
+  };
+
+  const handleStartExam = () => {
+    if (examCardIds.length === 0) return;
+
+    // Course outcomes are presented in a fixed sequence during the exam,
+    // so keep deck order rather than the selection order.
+    const selected = visibleCards
+      .filter((card) => examCardIds.includes(card._id))
+      .map((card) => ({
+        ...card,
+        deckId,
+        deckName: deck.deckName,
+        deckColour,
+      }));
+
+    setExamCards(selected);
+    setShowExamModal(false);
   };
 
   const handleUpdatePracticeCard = async (cardId, cardDeckId, updates) => {
@@ -281,11 +317,15 @@ function DeckPage() {
   };
 
   useEffect(() => {
-    if (!isSelectingCards) return;
+    if (!selectionIntent) return;
 
     const handleKeyDown = (event) => {
       if (event.key === "Enter") {
-        handleStartPractice();
+        if (selectionIntent === "practice") {
+          handleStartPractice();
+        } else if (selectionIntent === "exam") {
+          handleConfirmExamSelection();
+        }
       }
 
       if (event.key === "Escape") {
@@ -305,7 +345,7 @@ function DeckPage() {
       document.removeEventListener("mouseup", handleMouseUp);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSelectingCards, selectedCardIds]);
+  }, [selectionIntent, selectedCardIds]);
 
   const handleDeleteCard = async (cardId) => {
     try {
@@ -493,12 +533,18 @@ function DeckPage() {
               <div className="exam-buttons">
                   <button
                       type="button"
-                      className={isSelectingCards ? "practice-mode-btn-active" : undefined}
-                      onClick={handleStartSelectingCards}
+                      className={selectionIntent === "practice" ? "practice-mode-btn-active" : undefined}
+                      onClick={() => handleStartSelectingCards("practice")}
                   >
-                      {isSelectingCards ? "Cancel Selection" : "Practice Mode"}
+                      {selectionIntent === "practice" ? "Cancel Selection" : "Practice Mode"}
                   </button>
-                  <button type="button">Exam Mode</button>
+                  <button
+                      type="button"
+                      className={selectionIntent === "exam" ? "practice-mode-btn-active" : undefined}
+                      onClick={() => handleStartSelectingCards("exam")}
+                  >
+                      {selectionIntent === "exam" ? "Cancel Selection" : "Exam Mode"}
+                  </button>
               </div>
           </div>
       
@@ -765,7 +811,8 @@ function DeckPage() {
             {selectedCardIds.size} card{selectedCardIds.size === 1 ? "" : "s"} selected
           </span>
           <span className="selection-hint-instruction">
-            Click or drag across cards to toggle · Press Enter to start · Esc to cancel
+            Click or drag across cards to toggle · Press Enter to{" "}
+            {selectionIntent === "exam" ? "continue" : "start"} · Esc to cancel
           </span>
         </div>
       )}
@@ -775,6 +822,21 @@ function DeckPage() {
           cards={practiceCards}
           onClose={() => setPracticeCards(null)}
           onUpdateCard={handleUpdatePracticeCard}
+        />
+      )}
+
+      <ExamConditionsModal
+        isOpen={showExamModal}
+        onClose={() => setShowExamModal(false)}
+        onStart={handleStartExam}
+        deckCount={examModalCardCount}
+        itemLabel="card"
+      />
+
+      {examCards && (
+        <ExamSession
+          cards={examCards}
+          onClose={() => setExamCards(null)}
         />
       )}
     </div>
