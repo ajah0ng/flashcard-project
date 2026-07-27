@@ -14,7 +14,9 @@ dotenv.config();
 const app = express()
 const PORT = process.env.PORT || 5001;
 
-connectDB();
+connectDB().catch((error) => {
+    console.error("Initial MongoDB connection failed:", error)
+})
 
 // middleware parses the JSON bodies, req body
 app.use(cors({
