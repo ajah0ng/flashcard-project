@@ -2,7 +2,10 @@ import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET
+);
 
 const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
@@ -28,17 +31,29 @@ function setSessionCookie(res, token) {
     });
 }
 
-// POST /api/auth/google -- body: { credential } (Google ID token)
+// POST /api/auth/google -- body: { code } (useGoogleLogin auth-code flow)
+//                       or  { credential } (GoogleLogin rendered-button ID token)
 export async function googleSignIn(req, res) {
     try {
-        const { credential } = req.body;
+        const { code, credential } = req.body;
 
-        if (!credential) {
-            return res.status(400).json({ message: "Missing credential" });
+        if (!code && !credential) {
+            return res.status(400).json({ message: "Missing code or credential" });
+        }
+
+        let idToken = credential;
+
+        if (!idToken) {
+            const { tokens } = await googleClient.getToken({
+                code,
+                redirect_uri: "postmessage",
+            });
+
+            idToken = tokens.id_token;
         }
 
         const ticket = await googleClient.verifyIdToken({
-            idToken: credential,
+            idToken,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
 
