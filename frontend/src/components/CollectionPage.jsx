@@ -5,6 +5,7 @@ import axios from "axios";
 import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
 import ExamConditionsModal from "./modals/ExamConditionsModal";
 import PracticeSession from "./PracticeSession";
+import ExamSession from "./ExamSession";
 import '../styles/CollectionsPage.css'
 import '../styles/Page.css'
 import '../styles/Buttons.css'
@@ -52,6 +53,8 @@ function CollectionPage() {
     const [practiceCards, setPracticeCards] = useState(null);
     const [examModalDeckCount, setExamModalDeckCount] = useState(0);
     const [showExamModal, setShowExamModal] = useState(false);
+    const [examDeckIds, setExamDeckIds] = useState([]);
+    const [examCards, setExamCards] = useState(null);
     const dragSelectRef = useRef({ isDragging: false, mode: "select" });
 
     const isSelectingDecks = selectionIntent !== null;
@@ -162,10 +165,46 @@ function CollectionPage() {
     const handleConfirmExamSelection = () => {
         if (selectedDeckIds.size === 0) return;
 
+        setExamDeckIds(Array.from(selectedDeckIds));
         setExamModalDeckCount(selectedDeckIds.size);
         setSelectionIntent(null);
         setSelectedDeckIds(new Set());
         setShowExamModal(true);
+    };
+
+    const handleStartExam = async () => {
+        if (examDeckIds.length === 0) return;
+
+        try {
+            const decks = await Promise.all(
+                examDeckIds.map((deckId) =>
+                    queryClient.fetchQuery({
+                        queryKey: ["deck", deckId],
+                        queryFn: () => fetchDeck(deckId),
+                        staleTime: 1000 * 60 * 5,
+                    })
+                )
+            );
+
+            const allCards = decks.flatMap((deck) => {
+                const deckPosition = collection.decks.findIndex((d) => d._id === deck._id);
+
+                return (deck.cards || []).map((card) => ({
+                    ...card,
+                    deckId: deck._id,
+                    deckName: deck.deckName,
+                    deckColour: getDeckColour(
+                        deck._id,
+                        deckPosition === -1 ? undefined : deckPosition
+                    ),
+                }));
+            });
+
+            setExamCards(allCards);
+            setShowExamModal(false);
+        } catch (error) {
+            console.error("Failed to start exam mode:", error);
+        }
     };
 
     const handleUpdatePracticeCard = async (cardId, deckId, updates) => {
@@ -663,6 +702,7 @@ function CollectionPage() {
             <ExamConditionsModal
                 isOpen={showExamModal}
                 onClose={() => setShowExamModal(false)}
+                onStart={handleStartExam}
                 deckCount={examModalDeckCount}
             />
 
@@ -671,6 +711,13 @@ function CollectionPage() {
                     cards={practiceCards}
                     onClose={() => setPracticeCards(null)}
                     onUpdateCard={handleUpdatePracticeCard}
+                />
+            )}
+
+            {examCards && (
+                <ExamSession
+                    cards={examCards}
+                    onClose={() => setExamCards(null)}
                 />
             )}
         </div>

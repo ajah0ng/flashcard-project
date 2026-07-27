@@ -1,6 +1,6 @@
 import '../../styles/Modal.css'
 
-function ExamConditionsModal({ isOpen, onClose, deckCount = 0 }) {
+function ExamConditionsModal({ isOpen, onClose, onStart, deckCount = 0 }) {
   if (!isOpen) return null;
 
   return (
@@ -24,7 +24,7 @@ function ExamConditionsModal({ isOpen, onClose, deckCount = 0 }) {
           <button className="cancel-btn" onClick={onClose}>
             Cancel
           </button>
-          <button className="delete-confirm-btn exam-confirm-btn" onClick={onClose}>
+          <button className="delete-confirm-btn exam-confirm-btn" onClick={onStart}>
             I'm ready
           </button>
         </div>
