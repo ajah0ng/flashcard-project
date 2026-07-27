@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
+import LoadingSpinner from "./LoadingSpinner";
 import "../styles/CollectionsPage.css";
 import "../styles/Home.css";
 import "../styles/Card.css";
@@ -463,7 +464,7 @@ function DeckPage() {
   };
 
   if (isLoading) {
-    return <h2>Loading...</h2>;
+    return <LoadingSpinner />;
   }
 
   if (isError || !deck) {

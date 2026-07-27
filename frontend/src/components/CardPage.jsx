@@ -4,6 +4,7 @@ import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-quer
 import axios from "axios";
 import Tiptap from "./Tiptap";
 import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
+import LoadingSpinner from "./LoadingSpinner";
 import "../styles/Card.css";
 import "../styles/CollectionsPage.css";
 import "../styles/Home.css";
@@ -209,7 +210,7 @@ function CardPage() {
   }, [goToAdjacentCard]);
 
   if (isLoading) {
-    return <h2>Loading card...</h2>;
+    return <LoadingSpinner />;
   }
 
   if (isError || !card) {

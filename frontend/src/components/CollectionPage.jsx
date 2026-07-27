@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
+import LoadingSpinner from "./LoadingSpinner";
 import ExamConditionsModal from "./modals/ExamConditionsModal";
 import PracticeSession from "./PracticeSession";
 import ExamSession from "./ExamSession";
@@ -403,7 +404,7 @@ function CollectionPage() {
 
 
     if (isLoading) {
-        return <h2>Loading...</h2>;
+        return <LoadingSpinner />;
     }
 
     if (isError || !collection) {

@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 import DeleteConfirmationModal from "./modals/DeleteConfirmationModal";
+import LoadingSpinner from "./LoadingSpinner";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../styles/Home.css'
@@ -93,7 +94,7 @@ function Home() {
     };
 
     if (isLoading && collections.length === 0) {
-        return <h2>Loading...</h2>;
+        return <LoadingSpinner />;
     }
 
 
