@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(:)",
+      "Bash(nohup npm run dev)",
+      "Bash(cd /private/tmp/claude-501/-Users-annahong-Developer-flashcard-mern/ed049f1f-ac53-4744-9980-9fd52b0224a2/scratchpad *)",
+      "Bash(curl -s http://localhost:5001/api/collections/6a605bdd7c99ffc229700dc8)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -m json.tool)",
+      "Bash(node test-delete-card.mjs)",
+      "Bash(curl -s -X DELETE http://localhost:5001/api/decks/6a61c3d084e4f14fc3d31161)",
+      "Bash(lsof -iTCP:5173 -sTCP:LISTEN -n -P)",
+      "Bash(lsof -iTCP:5174 -sTCP:LISTEN -n -P)",
+      "Bash(ps -o pid,lstart,command -p 92069)",
+      "Bash(ps -o pid,ppid,lstart,command -p 92019)",
+      "Bash(node test-hover-edit.mjs)",
+      "Bash(curl -s http://localhost:5001/api/collections -o /dev/null -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(node --check src/controllers/collectionController.js)",
+      "Bash(npx playwright *)",
+      "Bash(node verify_create_collection.mjs)",
+      "Bash(node --check /Users/annahong/Developer/flashcard-mern/backend/src/controllers/collectionController.js)",
+      "Bash(node /private/tmp/claude-501/-Users-annahong-Developer-flashcard-mern/869044b3-20bb-4c90-ad9c-e9c4f6eb0b70/scratchpad/probe_practice.mjs)",
+      "Bash(node /private/tmp/claude-501/-Users-annahong-Developer-flashcard-mern/869044b3-20bb-4c90-ad9c-e9c4f6eb0b70/scratchpad/probe_practice2.mjs)",
+      "Bash(node /private/tmp/claude-501/-Users-annahong-Developer-flashcard-mern/869044b3-20bb-4c90-ad9c-e9c4f6eb0b70/scratchpad/probe_practice3.mjs)",
+      "Bash(node /private/tmp/claude-501/-Users-annahong-Developer-flashcard-mern/869044b3-20bb-4c90-ad9c-e9c4f6eb0b70/scratchpad/probe_final.mjs)",
+      "Bash(curl -s -X DELETE http://localhost:5001/api/collections/6a622e3799da6522ae6996cc)",
+      "Bash(curl -s -X DELETE http://localhost:5001/api/decks/6a622e3799da6522ae6996ca)",
+      "Bash(node /private/tmp/claude-501/-Users-annahong-Developer-flashcard-mern/869044b3-20bb-4c90-ad9c-e9c4f6eb0b70/scratchpad/probe_v2.mjs)",
+      "Bash(curl -s -X DELETE http://localhost:5001/api/collections/6a62309e57e3ddca2e5d8735)",
+      "Bash(curl -s -X DELETE http://localhost:5001/api/decks/6a62309e57e3ddca2e5d8733)",
+      "Bash(node /private/tmp/claude-501/-Users-annahong-Developer-flashcard-mern/869044b3-20bb-4c90-ad9c-e9c4f6eb0b70/scratchpad/probe_backbtn.mjs)",
+      "Bash(node /private/tmp/claude-501/-Users-annahong-Developer-flashcard-mern/869044b3-20bb-4c90-ad9c-e9c4f6eb0b70/scratchpad/probe_inline_edit.mjs)",
+      "Bash(curl -s -X DELETE http://localhost:5001/api/collections/6a66d4fb48887c4aff658513)",
+      "Bash(curl -s -X DELETE http://localhost:5001/api/decks/6a66d4fb48887c4aff658511)"
+    ]
+  }
+}

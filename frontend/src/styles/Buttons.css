@@ -7,11 +7,15 @@
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  padding: 0;
+  padding: 0.35rem 0.6rem;
+  margin: -0.35rem 0 0 -0.6rem;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  transition: color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .exam-buttons {
