@@ -1,14 +1,26 @@
-import { useGoogleLogin } from "@react-oauth/google";
+import { useState } from "react";
+import { useGoogleLogin, useGoogleOAuth } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
 import "../styles/LandingPage.css";
 
 function LandingPage() {
   const { signInWithGoogle } = useAuth();
+  const { scriptLoadedSuccessfully } = useGoogleOAuth();
+  const [status, setStatus] = useState("idle"); // idle | signing-in | error
 
   const handleSignInClick = useGoogleLogin({
     flow: "auth-code",
-    onSuccess: (codeResponse) => signInWithGoogle({ code: codeResponse.code }),
-    onError: () => console.error("Google sign-in failed"),
+    onSuccess: async (codeResponse) => {
+      setStatus("signing-in");
+
+      try {
+        await signInWithGoogle({ code: codeResponse.code });
+      } catch (error) {
+        console.error("Google sign-in failed", error);
+        setStatus("error");
+      }
+    },
+    onError: () => setStatus("error"),
   });
 
   return (
@@ -23,10 +35,23 @@ function LandingPage() {
           <button
             type="button"
             className="landing-signin-btn"
-            onClick={() => handleSignInClick()}
+            onClick={() => {
+              setStatus("idle");
+              handleSignInClick();
+            }}
+            disabled={!scriptLoadedSuccessfully || status === "signing-in"}
           >
-            Sign in
+            {!scriptLoadedSuccessfully
+              ? "Loading…"
+              : status === "signing-in"
+              ? "Signing in…"
+              : "Sign in"}
           </button>
+          {status === "error" && (
+            <p className="landing-signin-error">
+              Sign-in didn't go through — please try again.
+            </p>
+          )}
         </div>
       </section>
 

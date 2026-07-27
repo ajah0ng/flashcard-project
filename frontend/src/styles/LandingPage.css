@@ -41,7 +41,8 @@
 
 .landing-signin {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   margin: 1.75rem 0 0;
 }
 
@@ -63,6 +64,20 @@
 .landing-signin-btn:hover {
   background: #4f46e5;
   transform: translateY(-2px);
+}
+
+.landing-signin-btn:disabled {
+  background: #a5aaf2;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.landing-signin-error {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: #dc2626;
+  text-align: center;
 }
 
 .landing-demo {
