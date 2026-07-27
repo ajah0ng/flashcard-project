@@ -487,11 +487,12 @@ function DeckPage() {
       <div className="section-1-page">
           <button
             type="button"
+            className="back-button"
             onClick={() =>
               navigate(`/collections/${collectionId}`)
             }
           >
-            ←
+            ← Back to {collection?.collectionName || "My Collections"}
           </button>
 
           <div className="title-row">
