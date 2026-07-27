@@ -155,6 +155,17 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
+.practice-card-topbar {
+  width: min(1200px, 94vw);
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.practice-card-topbar .practice-esc-btn {
+  position: static;
+}
+
 .practice-progress {
   margin: 0 0 0.5rem;
   color: #94a3b8;
@@ -193,7 +204,7 @@
 
 .flashcard-scene {
   position: relative;
-  width: min(920px, 94vw);
+  width: min(1200px, 94vw);
   height: 300px;
   perspective: 1600px;
 }
@@ -336,7 +347,7 @@
 /* Below-card row: edit link + hint */
 
 .practice-below-card-row {
-  width: min(920px, 94vw);
+  width: min(1200px, 94vw);
   margin-top: 0.5rem;
 
   display: flex;
@@ -364,7 +375,7 @@
 /* Answer editor */
 
 .practice-answer-editor {
-  width: min(920px, 94vw);
+  width: min(1200px, 94vw);
   margin-top: 0.5rem;
 
   border-radius: 14px;

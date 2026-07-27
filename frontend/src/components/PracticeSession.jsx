@@ -146,10 +146,6 @@ function PracticeSession({ cards, collectionId, onClose, onUpdateCard }) {
       {practiceModeBadge}
 
       <div className="practice-modal">
-        <button type="button" className="practice-esc-btn" onClick={onClose}>
-          Esc
-        </button>
-
         <p className="practice-progress">
           Course outcome {currentIndex + 1} of {sessionCards.length}
           {currentCard.deckName ? ` · ${currentCard.deckName}` : ""}
@@ -184,6 +180,12 @@ function PracticeSession({ cards, collectionId, onClose, onUpdateCard }) {
               src={currentCard.favourite ? filledStarIcon : unfilledStarIcon}
               alt="Likely to appear"
             />
+          </button>
+        </div>
+
+        <div className="practice-card-topbar">
+          <button type="button" className="practice-esc-btn" onClick={onClose}>
+            Esc
           </button>
         </div>
 
