@@ -7,6 +7,7 @@ import "../styles/CollectionsPage.css";
 import "../styles/Home.css";
 import "../styles/Card.css";
 import '../styles/Page.css'
+import '../styles/PracticeMode.css'
 import filledStarIcon from '../../assets/filled-star.svg'
 import unfilledStarIcon from '../../assets/unfilled-star.svg'
 import filledQuestionIcon from '../../assets/filled-question.svg'
@@ -14,6 +15,9 @@ import unfilledQuestionIcon from '../../assets/unfilled-question.svg'
 import threeDotsIcon from '../../assets/three-dots-vertical-svgrepo-com.svg'
 import { getDeckColour } from "../utils/deckColours";
 import { rankDecksToRevise } from "../utils/rankDecks";
+import { shuffleArray } from "../utils/shuffle";
+import { patchCardFields } from "../utils/cardCacheSync";
+import PracticeSession from "./PracticeSession";
 
 const fetchDeck = async (deckId) => {
   const response = await axios.get(
@@ -90,6 +94,11 @@ function DeckPage() {
 
   const isFiltering = activeFilters.flagged || activeFilters.favourite;
 
+  const [isSelectingCards, setIsSelectingCards] = useState(false);
+  const [selectedCardIds, setSelectedCardIds] = useState(new Set());
+  const [practiceCards, setPracticeCards] = useState(null);
+  const dragSelectRef = useRef({ isDragging: false, mode: "select" });
+
   const {
     data: deck,
     isLoading,
@@ -102,6 +111,14 @@ function DeckPage() {
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });
+
+  const visibleCards = isFiltering
+    ? (deck?.cards || []).filter(
+        (card) =>
+          (activeFilters.flagged && card.flagged) ||
+          (activeFilters.favourite && card.favourite)
+      )
+    : deck?.cards || [];
 
   const addCard = (newCard) => {
     queryClient.setQueryData(["deck", deckId], (oldDeck) => {
@@ -183,6 +200,112 @@ function DeckPage() {
       applyCardFieldToCaches(card._id, field, card[field]);
     }
   };
+
+  const handleToggleCardSelection = (cardId, forceMode) => {
+    setSelectedCardIds((prev) => {
+      const next = new Set(prev);
+      const shouldSelect = forceMode ?? !next.has(cardId);
+
+      if (shouldSelect) {
+        next.add(cardId);
+      } else {
+        next.delete(cardId);
+      }
+
+      return next;
+    });
+  };
+
+  const handleCardMouseDown = (cardId) => {
+    if (!isSelectingCards) return;
+
+    const mode = selectedCardIds.has(cardId) ? "deselect" : "select";
+    dragSelectRef.current = { isDragging: true, mode };
+    handleToggleCardSelection(cardId, mode === "select");
+  };
+
+  const handleCardMouseEnter = (cardId) => {
+    if (!isSelectingCards || !dragSelectRef.current.isDragging) return;
+    handleToggleCardSelection(cardId, dragSelectRef.current.mode === "select");
+  };
+
+  const handleStartSelectingCards = () => {
+    setIsSelectingCards((wasSelecting) => {
+      if (wasSelecting) {
+        setSelectedCardIds(new Set());
+        return false;
+      }
+
+      // All cards are selected by default; the user toggles off what
+      // they don't want to practice.
+      setSelectedCardIds(new Set(visibleCards.map((card) => card._id)));
+      return true;
+    });
+  };
+
+  const handleCancelSelectingCards = () => {
+    setIsSelectingCards(false);
+    setSelectedCardIds(new Set());
+  };
+
+  const handleStartPractice = () => {
+    if (selectedCardIds.size === 0) return;
+
+    const selected = visibleCards
+      .filter((card) => selectedCardIds.has(card._id))
+      .map((card) => ({
+        ...card,
+        deckId,
+        deckName: deck.deckName,
+        deckColour,
+      }));
+
+    setPracticeCards(shuffleArray(selected));
+    setIsSelectingCards(false);
+    setSelectedCardIds(new Set());
+  };
+
+  const handleUpdatePracticeCard = async (cardId, cardDeckId, updates) => {
+    patchCardFields(queryClient, {
+      cardId,
+      deckId: cardDeckId,
+      collectionId,
+      updates,
+    });
+
+    try {
+      await axios.put(`http://localhost:5001/api/cards/${cardId}`, updates);
+    } catch (err) {
+      console.error("Failed to update card:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (!isSelectingCards) return;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Enter") {
+        handleStartPractice();
+      }
+
+      if (event.key === "Escape") {
+        handleCancelSelectingCards();
+      }
+    };
+
+    const handleMouseUp = () => {
+      dragSelectRef.current.isDragging = false;
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSelectingCards, selectedCardIds]);
 
   const handleDeleteCard = async (cardId) => {
     try {
@@ -315,14 +438,6 @@ function DeckPage() {
     );
   }
 
-  const visibleCards = isFiltering
-    ? (deck.cards || []).filter(
-        (card) =>
-          (activeFilters.flagged && card.flagged) ||
-          (activeFilters.favourite && card.favourite)
-      )
-    : deck.cards || [];
-
   return (
     <div id="deck-page"
 
@@ -376,7 +491,13 @@ function DeckPage() {
               )}
 
               <div className="exam-buttons">
-                  <button type="button">Practice Mode</button>
+                  <button
+                      type="button"
+                      className={isSelectingCards ? "practice-mode-btn-active" : undefined}
+                      onClick={handleStartSelectingCards}
+                  >
+                      {isSelectingCards ? "Cancel Selection" : "Practice Mode"}
+                  </button>
                   <button type="button">Exam Mode</button>
               </div>
           </div>
@@ -432,11 +553,19 @@ function DeckPage() {
           visibleCards.map((card) => (
             <div
               key={card._id}
-              className="course-outline-card"
+              className={
+                "course-outline-card" +
+                (isSelectingCards ? " deck-card-wiggle" : "") +
+                (selectedCardIds.has(card._id) ? " deck-card-selected" : "")
+              }
               style={{ "--deck-colour": deckColour }}
               role="button"
               tabIndex={0}
+              onMouseDown={() => handleCardMouseDown(card._id)}
+              onMouseEnter={() => handleCardMouseEnter(card._id)}
               onClick={() => {
+                if (isSelectingCards) return;
+
                 if (cardClickTimeoutRef.current) {
                   clearTimeout(cardClickTimeoutRef.current);
                 }
@@ -448,6 +577,8 @@ function DeckPage() {
                 }, 200);
               }}
               onDoubleClick={() => {
+                if (isSelectingCards) return;
+
                 if (cardClickTimeoutRef.current) {
                   clearTimeout(cardClickTimeoutRef.current);
                   cardClickTimeoutRef.current = null;
@@ -455,6 +586,8 @@ function DeckPage() {
                 handleEditCard(card);
               }}
               onKeyDown={(event) => {
+                if (isSelectingCards) return;
+
                 if (event.key === "Enter" || event.key === " ") {
                   navigate(
                     `/collections/${collectionId}/decks/${deckId}/cards/${card._id}`
@@ -462,6 +595,18 @@ function DeckPage() {
                 }
               }}
             >
+              {isSelectingCards && (
+                <span
+                  className={
+                    selectedCardIds.has(card._id)
+                      ? "deck-select-badge deck-select-badge-active"
+                      : "deck-select-badge"
+                  }
+                >
+                  {selectedCardIds.has(card._id) ? "✓" : ""}
+                </span>
+              )}
+
               <div className="course-outline-card-header">
                 {editingCardId === card._id ? (
                   <input
@@ -487,8 +632,11 @@ function DeckPage() {
                 ) : (
                   <h3
                     className={!card.courseOutcome ? "course-outcome-placeholder" : undefined}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      if (!isSelectingCards) e.stopPropagation();
+                    }}
                     onDoubleClick={(e) => {
+                      if (isSelectingCards) return;
                       e.stopPropagation();
                       handleEditCard(card);
                     }}
@@ -497,6 +645,7 @@ function DeckPage() {
                   </h3>
                 )}
 
+                {!isSelectingCards && (
                 <div
                   className="course-outline-card-icons"
                   onDoubleClick={(e) => e.stopPropagation()}
@@ -583,6 +732,7 @@ function DeckPage() {
                     )}
                   </div>
                 </div>
+                )}
               </div>
             </div>
           ))
@@ -608,6 +758,25 @@ function DeckPage() {
             ?.courseOutcome || "Untitled Course Outcome"
         }
       />
+
+      {isSelectingCards && (
+        <div className="selection-hint-bar">
+          <span className="selection-hint-count">
+            {selectedCardIds.size} card{selectedCardIds.size === 1 ? "" : "s"} selected
+          </span>
+          <span className="selection-hint-instruction">
+            Click or drag across cards to toggle · Press Enter to start · Esc to cancel
+          </span>
+        </div>
+      )}
+
+      {practiceCards && (
+        <PracticeSession
+          cards={practiceCards}
+          onClose={() => setPracticeCards(null)}
+          onUpdateCard={handleUpdatePracticeCard}
+        />
+      )}
     </div>
   );
 }

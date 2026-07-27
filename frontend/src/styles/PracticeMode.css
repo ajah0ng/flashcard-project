@@ -25,6 +25,25 @@
   transform: none;
 }
 
+/* Course outline rows span nearly the full page width, so the same
+   rotation angle as the (much narrower) deck grid cards swings the
+   far edge a lot more in pixels -- use a smaller angle here. */
+@keyframes course-card-wiggle {
+  0% {
+    transform: rotate(-0.35deg);
+  }
+  50% {
+    transform: rotate(0.35deg);
+  }
+  100% {
+    transform: rotate(-0.35deg);
+  }
+}
+
+.course-outline-card.deck-card-wiggle {
+  animation-name: course-card-wiggle;
+}
+
 .deck-card-selected {
   outline: 3px solid #6366f1;
   outline-offset: 3px;
