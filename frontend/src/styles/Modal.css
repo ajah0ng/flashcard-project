@@ -193,12 +193,12 @@
 /* Responsive */
 
 @media (max-width: 600px) {
-  #.modal-card {
+  .modal-card {
     width: 92%;
     padding: 24px;
   }
 
-  #.modal-card p {
+  .modal-card p {
     font-size: 1.5rem;
   }
 }
