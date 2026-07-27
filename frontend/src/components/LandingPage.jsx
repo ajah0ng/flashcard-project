@@ -49,7 +49,7 @@ function LandingPage() {
           </button>
           {status === "error" && (
             <p className="landing-signin-error">
-              Sign-in didn't go through — please try again.
+              Sign-in didn't go through - please try again.
             </p>
           )}
         </div>
