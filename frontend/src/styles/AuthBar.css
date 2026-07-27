@@ -1,0 +1,92 @@
+.auth-bar {
+  display: flex;
+  align-items: center;
+  margin-right: 1.25rem;
+}
+
+.auth-profile-menu {
+  position: relative;
+}
+
+.auth-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.auth-profile-btn:hover {
+  background: #f1f3f5;
+}
+
+.auth-profile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.auth-profile-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #4f46e5;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.auth-profile-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #14181f;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-profile-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  padding: 0.75rem;
+  z-index: 20;
+}
+
+.auth-profile-email {
+  margin: 0 0 0.6rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-sign-out-btn {
+  width: 100%;
+  background: #f1f3f5;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.auth-sign-out-btn:hover {
+  background: #fee2e2;
+}
