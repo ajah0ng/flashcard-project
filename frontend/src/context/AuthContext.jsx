@@ -36,10 +36,10 @@ export function AuthProvider({ children }) {
         return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
     }, [queryClient]);
 
-    const signInWithGoogle = useCallback(async (credential) => {
-        const response = await axios.post("/api/auth/google", {
-            credential,
-        });
+    // Accepts either { code } (useGoogleLogin auth-code flow) or
+    // { credential } (GoogleLogin rendered-button ID token)
+    const signInWithGoogle = useCallback(async (payload) => {
+        const response = await axios.post("/api/auth/google", payload);
 
         queryClient.clear();
         setUser(response.data);

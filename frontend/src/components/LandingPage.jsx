@@ -1,17 +1,15 @@
-import { useRef } from "react";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "../context/AuthContext";
 import "../styles/LandingPage.css";
 
 function LandingPage() {
   const { signInWithGoogle } = useAuth();
-  const hiddenGoogleButtonRef = useRef(null);
 
-  const handleSignInClick = () => {
-    hiddenGoogleButtonRef.current
-      ?.querySelector('div[role="button"]')
-      ?.click();
-  };
+  const handleSignInClick = useGoogleLogin({
+    flow: "auth-code",
+    onSuccess: (codeResponse) => signInWithGoogle({ code: codeResponse.code }),
+    onError: () => console.error("Google sign-in failed"),
+  });
 
   return (
     <div id="landing-page">
@@ -25,19 +23,10 @@ function LandingPage() {
           <button
             type="button"
             className="landing-signin-btn"
-            onClick={handleSignInClick}
+            onClick={() => handleSignInClick()}
           >
             Sign in
           </button>
-
-          <div className="landing-signin-hidden" ref={hiddenGoogleButtonRef}>
-            <GoogleLogin
-              onSuccess={(credentialResponse) =>
-                signInWithGoogle(credentialResponse.credential)
-              }
-              onError={() => console.error("Google sign-in failed")}
-            />
-          </div>
         </div>
       </section>
 

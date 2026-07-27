@@ -31,7 +31,7 @@ function AuthBar() {
             <div className="auth-bar">
                 <GoogleLogin
                     onSuccess={(credentialResponse) =>
-                        signInWithGoogle(credentialResponse.credential)
+                        signInWithGoogle({ credential: credentialResponse.credential })
                     }
                     onError={() => console.error("Google sign-in failed")}
                     size="medium"
