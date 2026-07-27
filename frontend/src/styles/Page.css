@@ -9,6 +9,15 @@
   color: #1a1a1a;
 }
 
+#card-page {
+  max-width: 1600px;
+  padding: 1.25rem 1.5rem;
+}
+
+#card-page .section-1-page {
+  margin-bottom: 1rem;
+}
+
 .section-1-page {
   display: flex;
   gap: 1rem;

@@ -74,7 +74,7 @@ function CardPage() {
   const [saveError, setSaveError] = useState("");
 
   const pageRef = useRef(null);
-  const swipeStateRef = useRef({ accumulatedX: 0, locked: false, timeoutId: null });
+  const swipeStateRef = useRef({ accumulatedY: 0, locked: false, timeoutId: null });
 
   const {
     data: card,
@@ -153,25 +153,25 @@ function CardPage() {
     if (!container) return;
 
     const handleWheel = (event) => {
-      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
 
       event.preventDefault();
 
       const state = swipeStateRef.current;
-      state.accumulatedX += event.deltaX;
+      state.accumulatedY += event.deltaY;
 
       clearTimeout(state.timeoutId);
       state.timeoutId = setTimeout(() => {
-        state.accumulatedX = 0;
+        state.accumulatedY = 0;
         state.locked = false;
       }, SWIPE_GESTURE_IDLE_MS);
 
       if (state.locked) return;
 
-      if (state.accumulatedX > SWIPE_THRESHOLD) {
+      if (state.accumulatedY > SWIPE_THRESHOLD) {
         state.locked = true;
         goToAdjacentCard("next");
-      } else if (state.accumulatedX < -SWIPE_THRESHOLD) {
+      } else if (state.accumulatedY < -SWIPE_THRESHOLD) {
         state.locked = true;
         goToAdjacentCard("prev");
       }
@@ -185,6 +185,27 @@ function CardPage() {
       container.removeEventListener("wheel", handleWheel);
       clearTimeout(swipeState.timeoutId);
     };
+  }, [goToAdjacentCard]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+
+      const target = event.target;
+      const isEditableTarget =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
+
+      if (isEditableTarget) return;
+
+      event.preventDefault();
+      goToAdjacentCard(event.key === "ArrowUp" ? "prev" : "next");
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [goToAdjacentCard]);
 
   if (isLoading) {
@@ -372,7 +393,7 @@ function CardPage() {
 
   return (
     <main id="card-page" ref={pageRef}>
-      <div className="card-page-layout">
+      <div className="section-1-page">
         <button
           type="button"
           className="back-button"
@@ -380,19 +401,21 @@ function CardPage() {
             navigate(`/collections/${collectionId}/decks/${deckId}`)
           }
         >
-          Go Back
+          ← Back to {deck?.deckName || "Untitled Lecture"}
         </button>
+      </div>
 
+      <div className="card-page-layout">
         <div className="card-swipe-region">
           <button
             type="button"
             className="card-swipe-arrow card-swipe-arrow-prev"
             onClick={() => goToAdjacentCard("prev")}
             disabled={!hasPrev}
-            title="Previous course outcome (swipe right)"
+            title="Previous course outcome (scroll up)"
             aria-label="Previous course outcome"
           >
-            ‹
+            ↑
           </button>
 
           <section
@@ -567,10 +590,10 @@ function CardPage() {
             className="card-swipe-arrow card-swipe-arrow-next"
             onClick={() => goToAdjacentCard("next")}
             disabled={!hasNext}
-            title="Next course outcome (swipe left)"
+            title="Next course outcome (scroll down)"
             aria-label="Next course outcome"
           >
-            ›
+            ↓
           </button>
         </div>
       </div>
