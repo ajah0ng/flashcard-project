@@ -1,6 +1,12 @@
 import mongoose, { mongo } from "mongoose"
 
 const collectionSchema = new mongoose.Schema({
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+
     // Course Name
     collectionName: {
         type: String,
